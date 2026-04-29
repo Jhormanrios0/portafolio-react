@@ -8,3 +8,5 @@ export const skills = [
   "Git",
   "APIs REST",
 ];
+
+

@@ -10,7 +10,7 @@ body {
   margin: 0;
   min-width: 320px;
   background:
-    radial-gradient(circle at 80% 10%, rgba(245, 197, 66, 0.12), transparent 32%),
+    radial-gradient(circle at 80% 10%, rgba(77, 163, 255, 0.12), transparent 32%),
     radial-gradient(circle at 10% 30%, rgba(255, 255, 255, 0.055), transparent 26%),
     var(--color-bg);
   color: var(--color-text);
@@ -90,3 +90,5 @@ html.lenis body {
 body {
   overflow-x: hidden;
 }
+
+

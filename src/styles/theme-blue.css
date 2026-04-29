@@ -1,0 +1,164 @@
+/* =========================
+   Final Blue Theme Override
+========================= */
+
+:root {
+  --color-primary: #4da3ff !important;
+  --color-primary-rgb: 77, 163, 255 !important;
+  --color-primary-soft: #8fd0ff !important;
+  --color-primary-soft-rgb: 143, 208, 255 !important;
+  --color-primary-deep: #1f6fe5 !important;
+
+  --accent: #4da3ff !important;
+  --accent-rgb: 77, 163, 255 !important;
+  --color-accent: #4da3ff !important;
+  --timeline-progress: #4da3ff !important;
+}
+
+/* Fondo general */
+.portfolio-shell {
+  background:
+    radial-gradient(circle at 15% 8%, rgba(77, 163, 255, 0.07), transparent 28%),
+    radial-gradient(circle at 84% 26%, rgba(77, 163, 255, 0.11), transparent 22%),
+    linear-gradient(180deg, #05070c 0%, #060910 100%) !important;
+}
+
+/* Etiquetas superiores */
+.portfolio-header p,
+.welcome-kicker {
+  border-color: rgba(77, 163, 255, 0.32) !important;
+  background: rgba(77, 163, 255, 0.08) !important;
+  color: #4da3ff !important;
+}
+
+/* Textos destacados */
+.welcome-title-line--accent,
+.welcome-stats-item strong,
+.section-card__eyebrow {
+  color: #4da3ff !important;
+}
+
+/* Botones */
+.btn--primary {
+  background: linear-gradient(135deg, #4da3ff, #8fd0ff) !important;
+  color: #06111f !important;
+  box-shadow: 0 18px 38px rgba(77, 163, 255, 0.24) !important;
+}
+
+.btn--ghost {
+  border-color: rgba(77, 163, 255, 0.24) !important;
+  background: rgba(77, 163, 255, 0.055) !important;
+  color: #eaf4ff !important;
+}
+
+/* Glow del welcome */
+.welcome-grid-glow {
+  background: radial-gradient(circle, rgba(77, 163, 255, 0.16), transparent 66%) !important;
+}
+
+.welcome-orb--main {
+  background: rgba(77, 163, 255, 0.22) !important;
+}
+
+.welcome-orb--soft {
+  background: rgba(143, 208, 255, 0.08) !important;
+}
+
+/* Code card */
+.welcome-code-card {
+  border-color: rgba(77, 163, 255, 0.18) !important;
+  box-shadow:
+    0 26px 80px rgba(0, 0, 0, 0.42),
+    0 0 34px rgba(77, 163, 255, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+}
+
+.welcome-code-card__top span:first-child {
+  background: #4da3ff !important;
+}
+
+.welcome-code-card__shine {
+  background:
+    linear-gradient(
+      115deg,
+      transparent 18%,
+      rgba(255, 255, 255, 0.06) 38%,
+      rgba(143, 208, 255, 0.28) 50%,
+      rgba(255, 255, 255, 0.04) 63%,
+      transparent 84%
+    ) !important;
+}
+
+/* Línea temporal */
+.timeline-path-progress {
+  stroke: #4da3ff !important;
+  filter: drop-shadow(0 0 10px rgba(77, 163, 255, 0.38)) !important;
+}
+
+.timeline-traveler-dot {
+  background: #4da3ff !important;
+  box-shadow:
+    0 0 0 6px rgba(77, 163, 255, 0.14),
+    0 0 20px rgba(77, 163, 255, 0.48) !important;
+}
+
+.timeline-section__marker[data-live="true"],
+.timeline-section__marker.is-active,
+.timeline-section__marker.active {
+  background: #4da3ff !important;
+  border-color: rgba(77, 163, 255, 0.95) !important;
+  color: #06111f !important;
+  box-shadow:
+    0 0 0 13px rgba(77, 163, 255, 0.13),
+    0 0 34px rgba(77, 163, 255, 0.58),
+    0 0 70px rgba(77, 163, 255, 0.24) !important;
+}
+
+.timeline-section__marker-pulse {
+  border-color: rgba(77, 163, 255, 0.88) !important;
+  background: radial-gradient(circle, rgba(77, 163, 255, 0.28), transparent 65%) !important;
+}
+
+.timeline-section__marker::after {
+  background: radial-gradient(circle, rgba(77, 163, 255, 0.28), transparent 64%) !important;
+}
+
+/* Botón flotante menú */
+.menu-toggle,
+.sidebar-toggle,
+.floating-menu-button,
+.floating-nav-toggle,
+.portfolio-menu-button,
+button[class*="menu"],
+button[class*="Menu"],
+button[class*="toggle"],
+button[class*="Toggle"] {
+  border-color: rgba(77, 163, 255, 0.28) !important;
+  background:
+    linear-gradient(180deg, rgba(77, 163, 255, 0.12), rgba(255, 255, 255, 0.05)),
+    rgba(10, 14, 24, 0.8) !important;
+  color: #eaf4ff !important;
+  box-shadow:
+    0 18px 44px rgba(0, 0, 0, 0.32),
+    0 0 24px rgba(77, 163, 255, 0.14) !important;
+}
+
+.menu-toggle span,
+.sidebar-toggle span,
+.floating-menu-button span,
+.floating-nav-toggle span,
+.portfolio-menu-button span {
+  color: inherit !important;
+}
+
+/* Chips, badges y detalles */
+.chip,
+.badge,
+.project-card span,
+.skills-list span,
+.service-card span {
+  border-color: rgba(77, 163, 255, 0.24) !important;
+  background: rgba(77, 163, 255, 0.06) !important;
+  color: #dceeff !important;
+}
+

@@ -18,3 +18,5 @@ export const projects = [
     tech: ["React", "GSAP", "ScrollTrigger"],
   },
 ];
+
+

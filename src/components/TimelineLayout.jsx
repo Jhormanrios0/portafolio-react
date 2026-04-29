@@ -3,6 +3,7 @@ import Lenis from "lenis";
 
 import { gsap, ScrollTrigger, useGSAP } from "../utils/gsapConfig";
 import { sections } from "../data/sections";
+import { initWelcomeAnimation } from "../animations/welcome.animation";
 
 import Sidebar from "./Sidebar";
 import SectionBlock from "./SectionBlock";
@@ -25,12 +26,14 @@ const sectionComponents = {
 
 const WAVE_VIEWBOX_HEIGHT = 620;
 
-const WAVE_PATH =
-  "M45 0 C28 78 62 142 45 220 C28 300 62 364 45 440 C30 510 60 560 45 620";
+const WAVE_PATH = "M32 0 C4 88 72 148 32 232 C-4 324 78 398 32 486 C8 554 62 596 32 620";
 
 export default function TimelineLayout() {
   const rootRef = useRef(null);
   const lenisRef = useRef(null);
+
+  const timelineContentRef = useRef(null);
+  const timelineLineRef = useRef(null);
 
   const svgRef = useRef(null);
   const progressPathRef = useRef(null);
@@ -72,8 +75,42 @@ export default function TimelineLayout() {
       let lenis;
       let raf;
       let progressTrigger;
+      let resizeCall;
+      let cleanupWelcomeAnimation;
 
       const allMarkers = gsap.utils.toArray(".timeline-section__marker");
+      const allSections = gsap.utils.toArray(".timeline-section");
+
+      const updateTimelineBounds = () => {
+        const timelineContent = timelineContentRef.current;
+        const timelineLine = timelineLineRef.current;
+
+        if (
+          !timelineContent ||
+          !timelineLine ||
+          !allMarkers.length ||
+          !allSections.length
+        ) {
+          return;
+        }
+
+        const contentRect = timelineContent.getBoundingClientRect();
+        const firstMarkerRect = allMarkers[0].getBoundingClientRect();
+        const lastSectionRect =
+          allSections[allSections.length - 1].getBoundingClientRect();
+
+        const startY = firstMarkerRect.top - contentRect.top + firstMarkerRect.height / 2 - 36;
+
+        const endY = lastSectionRect.bottom - contentRect.top;
+
+        const safeHeight = Math.max(420, endY - startY + 18);
+
+        gsap.set(timelineLine, {
+          top: startY,
+          height: safeHeight,
+          bottom: "auto",
+        });
+      };
 
       const turnMarkerOff = (marker, immediate = false) => {
         if (!marker) return;
@@ -93,7 +130,7 @@ export default function TimelineLayout() {
           borderColor: "rgba(255, 255, 255, 0.16)",
           color: "rgba(255, 255, 255, 0.48)",
           boxShadow:
-            "0 0 0 0 rgba(245, 197, 66, 0), 0 0 0 rgba(245, 197, 66, 0)",
+            "0 0 0 0 rgba(77, 163, 255, 0), 0 0 0 rgba(77, 163, 255, 0)",
           duration: immediate ? 0 : 0.5,
           ease: "power3.out",
         });
@@ -154,11 +191,11 @@ export default function TimelineLayout() {
         tl.to(marker, {
           scale: 1.42,
           rotate: -7,
-          backgroundColor: "#f5c542",
-          borderColor: "rgba(245, 197, 66, 0.95)",
+          backgroundColor: "var(--color-primary)",
+          borderColor: "rgba(var(--color-primary-rgb), 0.95)",
           color: "#111111",
           boxShadow:
-            "0 0 0 13px rgba(245, 197, 66, 0.13), 0 0 34px rgba(245, 197, 66, 0.58), 0 0 70px rgba(245, 197, 66, 0.24)",
+            "0 0 0 13px rgba(var(--color-primary-rgb), 0.13), 0 0 34px rgba(var(--color-primary-rgb), 0.58), 0 0 70px rgba(var(--color-primary-rgb), 0.24)",
           duration: 0.22,
           ease: "power4.out",
         });
@@ -284,6 +321,10 @@ export default function TimelineLayout() {
         ease: "power3.out",
       });
 
+      cleanupWelcomeAnimation = initWelcomeAnimation({ gsap, ScrollTrigger });
+
+      updateTimelineBounds();
+
       const progressPath = progressPathRef.current;
       const clipRect = clipRectRef.current;
       const traveler = travelerRef.current;
@@ -335,12 +376,18 @@ export default function TimelineLayout() {
         });
 
         progressTrigger = ScrollTrigger.create({
-          trigger: ".timeline-content",
+          trigger: timelineLineRef.current,
           start: "top 52%",
           end: "bottom 52%",
           invalidateOnRefresh: true,
+          onRefreshInit: () => {
+            updateTimelineBounds();
+          },
           onUpdate: (self) => updateWave(self.progress),
-          onRefresh: (self) => updateWave(self.progress),
+          onRefresh: (self) => {
+            updateTimelineBounds();
+            updateWave(self.progress);
+          },
         });
       }
 
@@ -448,9 +495,32 @@ export default function TimelineLayout() {
         });
       });
 
-      ScrollTrigger.refresh();
+      const handleResize = () => {
+        if (resizeCall) resizeCall.kill();
+
+        resizeCall = gsap.delayedCall(0.18, () => {
+          updateTimelineBounds();
+          ScrollTrigger.refresh();
+        });
+      };
+
+      window.addEventListener("resize", handleResize);
+
+      gsap.delayedCall(0.1, () => {
+        updateTimelineBounds();
+        ScrollTrigger.refresh();
+      });
 
       return () => {
+        if (typeof cleanupWelcomeAnimation === "function") {
+          cleanupWelcomeAnimation();
+        }
+        window.removeEventListener("resize", handleResize);
+
+        if (resizeCall) {
+          resizeCall.kill();
+        }
+
         if (progressTrigger) {
           progressTrigger.kill();
         }
@@ -474,16 +544,20 @@ export default function TimelineLayout() {
 
       <main className="portfolio-main">
         <header className="portfolio-header">
-          <p>Software Engineer / Frontend Developer</p>
-          <h1>Portafolio interactivo con React, JavaScript y GSAP.</h1>
-        </header>
+  <p>{"Portafolio / Desarrollo Web / Animaci\u00f3n"}</p>
+  <h1>{"Interfaces digitales con precisi\u00f3n, movimiento y prop\u00f3sito."}</h1>
+</header>
 
-        <div className="timeline-content">
-          <div className="timeline-line" aria-hidden="true">
+        <div className="timeline-content" ref={timelineContentRef}>
+          <div
+            className="timeline-line"
+            ref={timelineLineRef}
+            aria-hidden="true"
+          >
             <svg
               ref={svgRef}
               className="timeline-svg"
-              viewBox="0 0 90 620"
+              viewBox="0 0 76 620"
               preserveAspectRatio="none"
             >
               <defs>
@@ -529,3 +603,10 @@ export default function TimelineLayout() {
     </div>
   );
 }
+
+
+
+
+
+
+

@@ -24,3 +24,5 @@ export const experiences = [
     stack: ["HTML", "CSS", "Responsive Design", "Git"],
   },
 ];
+
+

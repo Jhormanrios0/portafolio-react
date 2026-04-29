@@ -1,12 +1,13 @@
-const markerOffsets = ["0px", "-14px", "14px", "-12px", "12px", "0px"];
+const markerOffsets = ["0px", "-7px", "9px", "-9px", "7px", "0px"];
 
 export default function SectionBlock({ section, index = 0, children }) {
   const markerShift = markerOffsets[index % markerOffsets.length];
 
   return (
     <section
-      className="timeline-section"
+      className={`timeline-section section--${section.id}`}
       id={section.id}
+      data-section={section.id}
       style={{ "--marker-shift": markerShift }}
     >
       <div className="timeline-section__marker-wrap">
