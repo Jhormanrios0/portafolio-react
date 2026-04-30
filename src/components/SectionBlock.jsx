@@ -25,3 +25,4 @@ export default function SectionBlock({ section, index = 0, children }) {
     </section>
   );
 }
+  

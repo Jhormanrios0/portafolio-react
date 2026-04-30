@@ -1,0 +1,429 @@
+export function initSkillsAnimation({ gsap, ScrollTrigger }) {
+  const section = document.querySelector(".section--skills");
+  if (!section) return () => {};
+
+  const root = section.querySelector("[data-skills-orbit]");
+  const paint = section.querySelector("[data-skills-paint]");
+  const stack = section.querySelector("[data-skills-stack]");
+  const cards = gsap.utils.toArray(section.querySelectorAll("[data-skill-card]"));
+  const cardInners = gsap.utils.toArray(
+    section.querySelectorAll(".skills-orbit-card__inner")
+  );
+
+  const eyebrow = section.querySelector("[data-skill-eyebrow]");
+  const title = section.querySelector("[data-skill-title]");
+  const intro = section.querySelector("[data-skill-intro]");
+  const timeline = section.querySelector("[data-skill-timeline]");
+  const sectionCard = section.querySelector(".section-card");
+
+  if (!root || !cards.length) return () => {};
+
+  const cleanup = [];
+  const prefersReducedMotion = window.matchMedia(
+    "(prefers-reduced-motion: reduce)"
+  ).matches;
+
+  const isSmallScreen = () => window.matchMedia("(max-width: 760px)").matches;
+
+  const timelineChromeSelector = [
+    ".timeline-rail",
+    ".timeline-line",
+    ".timeline-svg",
+    ".timeline-path",
+    ".timeline-path-progress",
+    ".timeline-traveler-dot",
+    ".timeline-section__marker",
+  ].join(",");
+
+  const getTimelineChrome = () =>
+    gsap.utils.toArray(document.querySelectorAll(timelineChromeSelector));
+
+  const hideTimelineChrome = () => {
+    document.body.classList.add("skills-story-lock");
+  };
+
+  const showTimelineChrome = () => {
+    document.body.classList.remove("skills-story-lock");
+
+    gsap.set(getTimelineChrome(), {
+      clearProps: "opacity,visibility,pointerEvents,transform",
+    });
+  };
+
+  const killForeignSectionTriggers = () => {
+    ScrollTrigger.getAll().forEach((trigger) => {
+      const id = String(trigger.vars?.id || "");
+
+      if (id.startsWith("skills-")) return;
+
+      if (trigger.trigger === section) {
+        trigger.kill(false);
+      }
+    });
+  };
+
+  const getScatter = (index, mode = "in") => {
+    const viewportWidth = Math.max(window.innerWidth, 360);
+    const viewportHeight = Math.max(window.innerHeight, 620);
+
+    const angle = ((index * 47 + 18) % 360) * (Math.PI / 180);
+    const side = index % 2 === 0 ? -1 : 1;
+
+    const baseX =
+      Math.cos(angle) * Math.min(viewportWidth * 0.3, 390) +
+      side * (54 + (index % 4) * 18);
+
+    const baseY =
+      Math.sin(angle) * Math.min(viewportHeight * 0.25, 220) -
+      72 +
+      (index % 5) * 18;
+
+    if (mode === "out") {
+      return {
+        x: baseX * 0.95,
+        y: -Math.min(viewportHeight * 0.34, 310) - (index % 6) * 22,
+        rotation: side * (9 + (index % 5) * 2.5),
+        scale: 0.78,
+        opacity: 0.24,
+      };
+    }
+
+    return {
+      x: baseX,
+      y: baseY,
+      rotation: side * (7 + (index % 5) * 2.2),
+      scale: 0.82,
+      opacity: 0.58,
+    };
+  };
+
+  const setBaseState = () => {
+    if (sectionCard) {
+      gsap.set(sectionCard, {
+        autoAlpha: 1,
+        y: 0,
+        x: 0,
+        scale: 1,
+        rotation: 0,
+        clearProps: "filter",
+      });
+    }
+
+    gsap.set(root, {
+      autoAlpha: 1,
+      "--skills-progress": 0,
+    });
+
+    gsap.set([eyebrow, title, intro, timeline].filter(Boolean), {
+      autoAlpha: 0,
+      y: 24,
+      force3D: true,
+    });
+
+    gsap.set(stack, {
+      autoAlpha: 1,
+      force3D: true,
+    });
+
+    gsap.set(cards, {
+      x: (index) => getScatter(index).x,
+      y: (index) => getScatter(index).y,
+      rotation: (index) => getScatter(index).rotation,
+      scale: (index) => getScatter(index).scale,
+      autoAlpha: (index) => getScatter(index).opacity,
+      transformOrigin: "50% 50%",
+      force3D: true,
+    });
+
+    gsap.set(cardInners, {
+      y: 0,
+      rotation: 0,
+      force3D: true,
+    });
+
+    if (paint) {
+      gsap.set(paint, {
+        autoAlpha: 0.28,
+        scale: 0.82,
+        x: 0,
+        y: 0,
+        force3D: true,
+      });
+    }
+  };
+
+  const setStaticState = () => {
+    if (sectionCard) {
+      gsap.set(sectionCard, {
+        autoAlpha: 1,
+        y: 0,
+        x: 0,
+        scale: 1,
+        rotation: 0,
+        clearProps: "filter",
+      });
+    }
+
+    gsap.set(root, {
+      autoAlpha: 1,
+      "--skills-progress": 1,
+    });
+
+    gsap.set([eyebrow, title, intro, timeline, stack].filter(Boolean), {
+      autoAlpha: 1,
+      y: 0,
+      clearProps: "transform",
+    });
+
+    gsap.set(cards, {
+      autoAlpha: 1,
+      x: 0,
+      y: 0,
+      rotation: 0,
+      scale: 1,
+      clearProps: "transform",
+    });
+
+    if (paint) {
+      gsap.set(paint, {
+        autoAlpha: 0.45,
+        scale: 1,
+      });
+    }
+  };
+
+  killForeignSectionTriggers();
+
+  const delayedCleaner = gsap.delayedCall(0.16, () => {
+    killForeignSectionTriggers();
+
+    if (prefersReducedMotion || isSmallScreen()) {
+      setStaticState();
+    } else {
+      setBaseState();
+    }
+
+    ScrollTrigger.refresh();
+  });
+
+  cleanup.push(() => delayedCleaner.kill());
+
+  if (prefersReducedMotion || isSmallScreen()) {
+    setStaticState();
+
+    return () => {
+      cleanup.forEach((fn) => fn());
+      showTimelineChrome();
+    };
+  }
+
+  setBaseState();
+
+  const visibilityTrigger = ScrollTrigger.create({
+    id: "skills-visibility",
+    trigger: section,
+    start: "top bottom",
+    end: "bottom top",
+    onEnter: () => root.classList.add("skills-orbit--active"),
+    onEnterBack: () => root.classList.add("skills-orbit--active"),
+    onLeave: () => root.classList.remove("skills-orbit--active"),
+    onLeaveBack: () => root.classList.remove("skills-orbit--active"),
+  });
+
+  cleanup.push(() => visibilityTrigger.kill());
+
+  const chromeTrigger = ScrollTrigger.create({
+    id: "skills-chrome",
+    trigger: section,
+    start: "top 82%",
+    end: "bottom 16%",
+    onEnter: hideTimelineChrome,
+    onEnterBack: hideTimelineChrome,
+    onLeave: showTimelineChrome,
+    onLeaveBack: showTimelineChrome,
+  });
+
+  cleanup.push(() => chromeTrigger.kill());
+
+  const tl = gsap.timeline({
+    defaults: {
+      ease: "none",
+    },
+    scrollTrigger: {
+      id: "skills-main",
+      trigger: section,
+      start: "top 78%",
+      end: "bottom 18%",
+      scrub: 0.55,
+      invalidateOnRefresh: true,
+      onRefreshInit: () => {
+        killForeignSectionTriggers();
+        setBaseState();
+      },
+      onEnter: hideTimelineChrome,
+      onEnterBack: hideTimelineChrome,
+      onLeave: showTimelineChrome,
+      onLeaveBack: showTimelineChrome,
+    },
+  });
+
+  tl.to(
+    [eyebrow, title, intro, timeline].filter(Boolean),
+    {
+      autoAlpha: 1,
+      y: 0,
+      duration: 0.46,
+      stagger: 0.06,
+      ease: "power3.out",
+    },
+    0
+  );
+
+  if (paint) {
+    tl.to(
+      paint,
+      {
+        autoAlpha: 0.84,
+        scale: 1,
+        x: -22,
+        y: 10,
+        duration: 1.3,
+        ease: "power2.out",
+      },
+      0.08
+    );
+  }
+
+  tl.to(
+    root,
+    {
+      "--skills-progress": 1,
+      duration: 1.7,
+      ease: "none",
+    },
+    0.38
+  );
+
+  tl.to(
+    cards,
+    {
+      x: 0,
+      y: 0,
+      rotation: 0,
+      scale: 1,
+      autoAlpha: 1,
+      duration: 1.7,
+      stagger: {
+        each: 0.022,
+        from: "random",
+      },
+      ease: "power2.out",
+    },
+    0.42
+  );
+
+  tl.to(
+    cardInners,
+    {
+      y: (index) => (index % 2 === 0 ? -3 : 3),
+      duration: 0.42,
+      stagger: {
+        each: 0.006,
+        from: "center",
+      },
+      ease: "sine.inOut",
+    },
+    1.62
+  );
+
+  tl.to(
+    cardInners,
+    {
+      y: 0,
+      duration: 0.42,
+      stagger: {
+        each: 0.006,
+        from: "center",
+      },
+      ease: "sine.inOut",
+    },
+    2.04
+  );
+
+  tl.to({}, { duration: 0.55 });
+
+  tl.to(
+    cards,
+    {
+      x: (index) => getScatter(index, "out").x,
+      y: (index) => getScatter(index, "out").y,
+      rotation: (index) => getScatter(index, "out").rotation,
+      scale: (index) => getScatter(index, "out").scale,
+      autoAlpha: (index) => getScatter(index, "out").opacity,
+      duration: 0.88,
+      stagger: {
+        each: 0.012,
+        from: "edges",
+      },
+      ease: "power2.inOut",
+    },
+    ">"
+  );
+
+  if (paint) {
+    tl.to(
+      paint,
+      {
+        autoAlpha: 0.22,
+        scale: 1.12,
+        y: -30,
+        duration: 0.62,
+        ease: "power2.inOut",
+      },
+      "<"
+    );
+  }
+
+  tl.to(
+    [eyebrow, title, intro, timeline].filter(Boolean),
+    {
+      autoAlpha: 0,
+      y: -22,
+      duration: 0.48,
+      stagger: 0.025,
+      ease: "power2.in",
+    },
+    "<+=0.18"
+  );
+
+  tl.to(
+    root,
+    {
+      "--skills-progress": 0.04,
+      duration: 0.5,
+      ease: "none",
+    },
+    "<"
+  );
+
+  cleanup.push(() => {
+    if (tl.scrollTrigger) {
+      tl.scrollTrigger.kill();
+    }
+
+    tl.kill();
+  });
+
+  const refreshCall = gsap.delayedCall(0.28, () => {
+    killForeignSectionTriggers();
+    ScrollTrigger.refresh();
+  });
+
+  cleanup.push(() => refreshCall.kill());
+
+  return () => {
+    cleanup.forEach((fn) => fn());
+    root.classList.remove("skills-orbit--active");
+    showTimelineChrome();
+  };
+}

@@ -1,0 +1,474 @@
+﻿export function initSkillsAnimation({ gsap, ScrollTrigger }) {
+  const section = document.querySelector(".section--skills");
+  if (!section || !gsap || !ScrollTrigger) return () => {};
+
+  const root = section.querySelector("[data-skills-deck-root]");
+  const stage = section.querySelector("[data-skills-stage]");
+  const cover = section.querySelector("[data-skills-cover]");
+  const stateLabel = section.querySelector("[data-skills-state-label]");
+  const headerItems = gsap.utils.toArray(
+    section.querySelectorAll("[data-skills-header-item]"),
+  );
+  const cards = gsap.utils.toArray(section.querySelectorAll("[data-skill-card]"));
+  const nodes = gsap.utils.toArray(section.querySelectorAll("[data-skills-node]"));
+
+  if (!root || !stage || !cover || !cards.length) return () => {};
+
+  const prefersReducedMotion = window.matchMedia(
+    "(prefers-reduced-motion: reduce)",
+  ).matches;
+
+  let mm = null;
+  let timeline = null;
+  let refreshFrame = null;
+  let currentState = "";
+  let stackTransforms = [];
+  let activeNodeIndex = -1;
+
+  const scatterMap = [
+    { x: -220, y: -95, rotation: -9, scale: 0.94 },
+    { x: 185, y: -118, rotation: 8, scale: 0.92 },
+    { x: -68, y: -158, rotation: -6, scale: 0.95 },
+    { x: 245, y: -42, rotation: 10, scale: 0.93 },
+    { x: -255, y: 18, rotation: -8, scale: 0.94 },
+    { x: 142, y: 48, rotation: 6, scale: 0.96 },
+    { x: -184, y: 122, rotation: 8, scale: 0.92 },
+    { x: 265, y: 118, rotation: -7, scale: 0.94 },
+    { x: -34, y: 154, rotation: 5, scale: 0.97 },
+    { x: 78, y: -70, rotation: -5, scale: 0.94 },
+    { x: -282, y: -34, rotation: 7, scale: 0.92 },
+    { x: 292, y: 4, rotation: -9, scale: 0.93 },
+  ];
+
+  const stackRotationMap = [-9, 7, -6, 8, -5, 5, -7, 4];
+
+  const forceSectionClean = () => {
+    const sectionCard = section.querySelector(".section-card");
+    if (!sectionCard) return;
+
+    gsap.set(sectionCard, {
+      autoAlpha: 1,
+      x: 0,
+      y: 0,
+      scale: 1,
+      rotation: 0,
+      filter: "none",
+      clearProps: "transform",
+    });
+  };
+
+  const getScatter = (index) => {
+    const base = scatterMap[index % scatterMap.length];
+    const row = Math.floor(index / 6);
+    const direction = row % 2 === 0 ? 1 : -1;
+    const widthFactor = gsap.utils.clamp(0.68, 1, window.innerWidth / 1440);
+    const heightFactor = gsap.utils.clamp(0.72, 1, window.innerHeight / 900);
+
+    return {
+      x: (base.x + direction * row * 16) * widthFactor,
+      y: (base.y + row * 12) * heightFactor,
+      rotation: base.rotation + direction * row * 1.2,
+      scale: base.scale,
+    };
+  };
+
+  const measureStackTransforms = () => {
+    gsap.set(cards, {
+      x: 0,
+      y: 0,
+      scale: 1,
+      rotation: 0,
+      clearProps: "transform",
+    });
+
+    gsap.set(cover, {
+      x: 0,
+      y: 0,
+      scale: 1,
+      rotation: 0,
+      autoAlpha: 1,
+      clearProps: "transform",
+    });
+
+    const coverRect = cover.getBoundingClientRect();
+
+    if (!coverRect.width || coverRect.width < 40) {
+      stackTransforms = cards.map(() => ({
+        x: 0,
+        y: 0,
+        scale: 0.56,
+        rotation: 0,
+      }));
+
+      return;
+    }
+
+    const coverCenterX = coverRect.left + coverRect.width / 2;
+    const coverCenterY = coverRect.top + coverRect.height / 2;
+
+    stackTransforms = cards.map((card, index) => {
+      const rect = card.getBoundingClientRect();
+      const cardCenterX = rect.left + rect.width / 2;
+      const cardCenterY = rect.top + rect.height / 2;
+
+      const scale = gsap.utils.clamp(
+        0.45,
+        0.6,
+        (coverRect.width * 0.78) / Math.max(rect.width, 1),
+      );
+
+      return {
+        x: coverCenterX - cardCenterX + (index % 4) * 1.4,
+        y: coverCenterY - cardCenterY + (index % 6) * 1.1,
+        scale,
+        rotation: stackRotationMap[index % stackRotationMap.length],
+      };
+    });
+  };
+
+  const setRootState = (nextState) => {
+    if (currentState === nextState) return;
+
+    currentState = nextState;
+
+    root.classList.toggle("is-scattered", nextState === "scattered");
+    root.classList.toggle("is-organizing", nextState === "organizing");
+    root.classList.toggle("is-organized", nextState === "organized");
+    root.classList.toggle("is-stacked", nextState === "stacked");
+
+    if (!stateLabel) return;
+
+    const labels = {
+      scattered: "Cards dispersas",
+      organizing: "Ordenando stack",
+      organized: "Stack organizado",
+      stacked: "Stack recogido",
+    };
+
+    stateLabel.textContent = labels[nextState] || "Stack técnico";
+  };
+
+  const updateNodes = (lineProgress) => {
+    if (!nodes.length) return;
+
+    const nextActiveIndex = Math.floor(
+      gsap.utils.clamp(0, 0.999, lineProgress) * nodes.length,
+    );
+
+    if (nextActiveIndex === activeNodeIndex) return;
+
+    activeNodeIndex = nextActiveIndex;
+
+    nodes.forEach((node, index) => {
+      node.classList.toggle("is-active", index <= activeNodeIndex);
+    });
+  };
+
+  const updateStateByProgress = (progress) => {
+    const lineProgress = gsap.utils.clamp(0, 1, (progress - 0.12) / 0.68);
+    updateNodes(lineProgress);
+
+    if (progress < 0.3) {
+      setRootState("scattered");
+      return;
+    }
+
+    if (progress < 0.62) {
+      setRootState("organizing");
+      return;
+    }
+
+    if (progress < 0.82) {
+      setRootState("organized");
+      return;
+    }
+
+    setRootState("stacked");
+  };
+
+  const setDesktopBase = () => {
+    forceSectionClean();
+    measureStackTransforms();
+
+    currentState = "";
+    activeNodeIndex = -1;
+    setRootState("scattered");
+    updateNodes(0);
+
+    gsap.set(root, {
+      autoAlpha: 1,
+      "--skills-progress": 0,
+    });
+
+    gsap.set(headerItems, {
+      autoAlpha: 0,
+      y: 22,
+      force3D: true,
+    });
+
+    gsap.set(stage, {
+      autoAlpha: 0,
+      y: 28,
+      scale: 0.99,
+      force3D: true,
+    });
+
+    gsap.set(cover, {
+      autoAlpha: 0,
+      y: -10,
+      scale: 0.9,
+      transformOrigin: "50% 50%",
+      force3D: true,
+    });
+
+    gsap.set(cards, {
+      x: (index) => getScatter(index).x,
+      y: (index) => getScatter(index).y,
+      scale: (index) => getScatter(index).scale,
+      rotation: (index) => getScatter(index).rotation,
+      autoAlpha: 1,
+      zIndex: (index) => cards.length - index,
+      transformOrigin: "50% 50%",
+      willChange: "transform, opacity",
+      force3D: true,
+    });
+  };
+
+  const setMobileBase = () => {
+    currentState = "";
+    activeNodeIndex = -1;
+
+    setRootState("organized");
+    updateNodes(1);
+
+    gsap.set(root, {
+      autoAlpha: 1,
+      "--skills-progress": 1,
+    });
+
+    gsap.set(headerItems, {
+      autoAlpha: 1,
+      y: 0,
+      clearProps: "transform",
+    });
+
+    gsap.set(stage, {
+      autoAlpha: 1,
+      y: 0,
+      scale: 1,
+      clearProps: "transform",
+    });
+
+    gsap.set(cover, {
+      autoAlpha: 0,
+      display: "none",
+    });
+
+    gsap.set(cards, {
+      x: 0,
+      y: 0,
+      scale: 1,
+      rotation: 0,
+      autoAlpha: 1,
+      zIndex: 1,
+      clearProps: "transform",
+    });
+  };
+
+  const killTimeline = () => {
+    if (timeline?.scrollTrigger) timeline.scrollTrigger.kill();
+    if (timeline) timeline.kill();
+    timeline = null;
+  };
+
+  forceSectionClean();
+
+  if (prefersReducedMotion) {
+    setMobileBase();
+
+    return () => {
+      gsap.killTweensOf([root, stage, cover, ...headerItems, ...cards]);
+    };
+  }
+
+  mm = gsap.matchMedia();
+
+  mm.add("(min-width: 861px)", () => {
+    setDesktopBase();
+
+    timeline = gsap.timeline({
+      defaults: {
+        ease: "power2.out",
+      },
+      scrollTrigger: {
+        trigger: section,
+        start: "top 76%",
+        end: "bottom 18%",
+        scrub: 0.22,
+        invalidateOnRefresh: true,
+
+        onRefreshInit: () => {
+          forceSectionClean();
+          measureStackTransforms();
+        },
+
+        onUpdate: (self) => {
+          updateStateByProgress(self.progress);
+        },
+      },
+    });
+
+    timeline
+      .fromTo(
+        headerItems,
+        {
+          autoAlpha: 0,
+          y: 22,
+        },
+        {
+          autoAlpha: 1,
+          y: 0,
+          duration: 0.16,
+          stagger: 0.016,
+          force3D: true,
+        },
+        0,
+      )
+      .fromTo(
+        stage,
+        {
+          autoAlpha: 0,
+          y: 28,
+          scale: 0.99,
+        },
+        {
+          autoAlpha: 1,
+          y: 0,
+          scale: 1,
+          duration: 0.18,
+          force3D: true,
+        },
+        0.04,
+      )
+      .to(
+        root,
+        {
+          "--skills-progress": 1,
+          duration: 0.66,
+          ease: "none",
+        },
+        0.13,
+      )
+      .fromTo(
+        cards,
+        {
+          x: (index) => getScatter(index).x,
+          y: (index) => getScatter(index).y,
+          scale: (index) => getScatter(index).scale,
+          rotation: (index) => getScatter(index).rotation,
+          autoAlpha: 1,
+          zIndex: (index) => cards.length - index,
+        },
+        {
+          x: 0,
+          y: 0,
+          scale: 1,
+          rotation: 0,
+          autoAlpha: 1,
+          zIndex: 1,
+          duration: 0.48,
+          stagger: {
+            amount: 0.08,
+            from: "center",
+          },
+          force3D: true,
+        },
+        0.18,
+      )
+      .to(
+        cards,
+        {
+          x: 0,
+          y: 0,
+          scale: 1,
+          rotation: 0,
+          duration: 0.16,
+          stagger: {
+            amount: 0.02,
+            from: "center",
+          },
+          force3D: true,
+        },
+        0.62,
+      )
+      .to(
+        cards,
+        {
+          x: (index) => stackTransforms[index]?.x ?? 0,
+          y: (index) => stackTransforms[index]?.y ?? 0,
+          scale: (index) => stackTransforms[index]?.scale ?? 0.56,
+          rotation: (index) => stackTransforms[index]?.rotation ?? 0,
+          zIndex: (index) => cards.length - index,
+          duration: 0.22,
+          stagger: {
+            amount: 0.06,
+            from: "end",
+          },
+          force3D: true,
+        },
+        0.8,
+      )
+      .fromTo(
+        cover,
+        {
+          autoAlpha: 0,
+          y: -10,
+          scale: 0.9,
+        },
+        {
+          autoAlpha: 1,
+          y: 0,
+          scale: 1,
+          duration: 0.14,
+          force3D: true,
+        },
+        0.88,
+      );
+
+    refreshFrame = requestAnimationFrame(() => {
+      ScrollTrigger.refresh();
+    });
+
+    return () => {
+      killTimeline();
+
+      if (refreshFrame) {
+        cancelAnimationFrame(refreshFrame);
+        refreshFrame = null;
+      }
+
+      gsap.killTweensOf([root, stage, cover, ...headerItems, ...cards]);
+    };
+  });
+
+  mm.add("(max-width: 860px)", () => {
+    killTimeline();
+    setMobileBase();
+
+    return () => {
+      gsap.killTweensOf([root, stage, cover, ...headerItems, ...cards]);
+    };
+  });
+
+  return () => {
+    if (mm) mm.revert();
+    killTimeline();
+
+    if (refreshFrame) {
+      cancelAnimationFrame(refreshFrame);
+      refreshFrame = null;
+    }
+
+    gsap.killTweensOf([root, stage, cover, ...headerItems, ...cards]);
+  };
+}

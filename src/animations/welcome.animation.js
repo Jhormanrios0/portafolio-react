@@ -70,12 +70,15 @@ export function initWelcomeAnimation({ gsap, ScrollTrigger }) {
 
   gsap.set(codeCard, {
     rotateX: 10,
-    rotateY: -12,
+    rotateY: -14,
     rotateZ: 2,
     y: 34,
+    x: 0,
     scale: 0.92,
-    transformPerspective: 1200,
+    transformPerspective: 1500,
     transformOrigin: "50% 50%",
+    transformStyle: "preserve-3d",
+    willChange: "transform",
   });
 
   gsap.set(codeCardInner, {
@@ -84,14 +87,15 @@ export function initWelcomeAnimation({ gsap, ScrollTrigger }) {
     x: 0,
     y: 0,
     scale: 1,
-    transformPerspective: 1400,
+    transformPerspective: 1500,
     transformOrigin: "50% 50%",
     transformStyle: "preserve-3d",
+    willChange: "transform",
   });
 
   gsap.set([codeCardTop, codeCardPre], {
-    z: 24,
-    transformPerspective: 1400,
+    z: 34,
+    transformPerspective: 1500,
   });
 
   gsap.set(orbs, {
@@ -109,8 +113,8 @@ export function initWelcomeAnimation({ gsap, ScrollTrigger }) {
   if (shine) {
     gsap.set(shine, {
       opacity: 0,
-      xPercent: -14,
-      yPercent: -14,
+      xPercent: -18,
+      yPercent: -18,
     });
   }
 
@@ -252,121 +256,211 @@ export function initWelcomeAnimation({ gsap, ScrollTrigger }) {
   });
 
   if (codeCard && codeCardInner) {
-    const rotateXTo = gsap.quickTo(codeCardInner, "rotationX", {
-      duration: 0.45,
+    let isPointerInside = false;
+    let isWelcomeVisible = false;
+    let lastPointer = {
+      x: window.innerWidth * 0.72,
+      y: window.innerHeight * 0.48,
+    };
+
+    const rotateXTo = gsap.quickTo(codeCard, "rotationX", {
+      duration: 0.55,
       ease: "power3.out",
     });
 
-    const rotateYTo = gsap.quickTo(codeCardInner, "rotationY", {
-      duration: 0.45,
+    const rotateYTo = gsap.quickTo(codeCard, "rotationY", {
+      duration: 0.55,
       ease: "power3.out",
     });
 
-    const xTo = gsap.quickTo(codeCardInner, "x", {
-      duration: 0.45,
+    const rotateZTo = gsap.quickTo(codeCard, "rotationZ", {
+      duration: 0.55,
       ease: "power3.out",
     });
 
-    const yTo = gsap.quickTo(codeCardInner, "y", {
-      duration: 0.45,
+    const xTo = gsap.quickTo(codeCard, "x", {
+      duration: 0.55,
       ease: "power3.out",
     });
 
-    const scaleTo = gsap.quickTo(codeCardInner, "scale", {
-      duration: 0.45,
+    const yTo = gsap.quickTo(codeCard, "y", {
+      duration: 0.55,
+      ease: "power3.out",
+    });
+
+    const scaleTo = gsap.quickTo(codeCard, "scale", {
+      duration: 0.48,
+      ease: "power3.out",
+    });
+
+    const innerXTo = gsap.quickTo(codeCardInner, "x", {
+      duration: 0.6,
+      ease: "power3.out",
+    });
+
+    const innerYTo = gsap.quickTo(codeCardInner, "y", {
+      duration: 0.6,
       ease: "power3.out",
     });
 
     const shineOpacityTo = shine
       ? gsap.quickTo(shine, "opacity", {
-          duration: 0.28,
+          duration: 0.35,
           ease: "power2.out",
         })
       : null;
 
     const shineXTo = shine
       ? gsap.quickTo(shine, "xPercent", {
-          duration: 0.55,
+          duration: 0.65,
           ease: "power3.out",
         })
       : null;
 
     const shineYTo = shine
       ? gsap.quickTo(shine, "yPercent", {
-          duration: 0.55,
+          duration: 0.65,
           ease: "power3.out",
         })
       : null;
 
-    const handleEnter = () => {
-      scaleTo(1.03);
+    const updateCodeCardTilt = () => {
+      if (!isWelcomeVisible) return;
+
+      const rect = codeCard.getBoundingClientRect();
+
+      const cardCenterX = rect.left + rect.width / 2;
+      const cardCenterY = rect.top + rect.height / 2;
+
+      const distanceX = lastPointer.x - cardCenterX;
+      const distanceY = lastPointer.y - cardCenterY;
+
+      const normalizedX = gsap.utils.clamp(
+        -1,
+        1,
+        distanceX / (window.innerWidth * 0.34)
+      );
+
+      const normalizedY = gsap.utils.clamp(
+        -1,
+        1,
+        distanceY / (window.innerHeight * 0.34)
+      );
+
+      const intensity = isPointerInside ? 1.22 : 0.82;
+
+      const rotationY = normalizedX * 22 * intensity;
+      const rotationX = normalizedY * -16 * intensity;
+      const rotationZ = normalizedX * 2.2;
+
+      const moveX = normalizedX * 16 * intensity;
+      const moveY = normalizedY * 12 * intensity;
+
+      rotateXTo(rotationX);
+      rotateYTo(rotationY);
+      rotateZTo(rotationZ);
+      xTo(moveX);
+      yTo(moveY);
+      scaleTo(isPointerInside ? 1.055 : 1.018);
+
+      innerXTo(normalizedX * -8);
+      innerYTo(normalizedY * -6);
+
+      if (shineOpacityTo) {
+        shineOpacityTo(isPointerInside ? 0.78 : 0.26);
+      }
+
+      if (shineXTo && shineYTo) {
+        shineXTo(gsap.utils.mapRange(-1, 1, -34, 34, normalizedX));
+        shineYTo(gsap.utils.mapRange(-1, 1, -28, 28, normalizedY));
+      }
+    };
+
+    const resetCodeCardTilt = () => {
+      rotateXTo(0);
+      rotateYTo(0);
+      rotateZTo(-1);
+      xTo(0);
+      yTo(0);
+      scaleTo(1);
+      innerXTo(0);
+      innerYTo(0);
+
+      if (shineOpacityTo && shineXTo && shineYTo) {
+        shineOpacityTo(0);
+        shineXTo(-18);
+        shineYTo(-18);
+      }
+    };
+
+    const handleWindowPointerMove = (event) => {
+      lastPointer.x = event.clientX;
+      lastPointer.y = event.clientY;
+      updateCodeCardTilt();
+    };
+
+    const handlePointerEnter = () => {
+      isPointerInside = true;
 
       gsap.to(codeCard, {
         boxShadow:
-          "0 34px 90px rgba(0, 0, 0, 0.42), 0 0 42px rgba(var(--color-primary-rgb), 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.1)",
+          "0 42px 110px rgba(0, 0, 0, 0.5), 0 0 58px rgba(var(--color-primary-rgb), 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.12)",
         duration: 0.35,
         overwrite: "auto",
         ease: "power3.out",
       });
 
-      if (shineOpacityTo) {
-        shineOpacityTo(0.78);
-      }
+      updateCodeCardTilt();
     };
 
-    const handleMove = (event) => {
-      const rect = codeCard.getBoundingClientRect();
-
-      const px = (event.clientX - rect.left) / rect.width;
-      const py = (event.clientY - rect.top) / rect.height;
-
-      const rotateY = gsap.utils.mapRange(0, 1, -12, 12, px);
-      const rotateX = gsap.utils.mapRange(0, 1, 10, -10, py);
-
-      const moveX = gsap.utils.mapRange(0, 1, -8, 8, px);
-      const moveY = gsap.utils.mapRange(0, 1, -8, 8, py);
-
-      rotateXTo(rotateX);
-      rotateYTo(rotateY);
-      xTo(moveX);
-      yTo(moveY);
-
-      if (shineXTo && shineYTo) {
-        shineXTo(gsap.utils.mapRange(0, 1, -24, 24, px));
-        shineYTo(gsap.utils.mapRange(0, 1, -22, 22, py));
-      }
-    };
-
-    const handleLeave = () => {
-      rotateXTo(0);
-      rotateYTo(0);
-      xTo(0);
-      yTo(0);
-      scaleTo(1);
+    const handlePointerLeave = () => {
+      isPointerInside = false;
 
       gsap.to(codeCard, {
         boxShadow:
-          "0 26px 80px rgba(0, 0, 0, 0.42), 0 0 34px rgba(var(--color-primary-rgb), 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.08)",
+          "0 30px 90px rgba(0, 0, 0, 0.44), 0 0 42px rgba(var(--color-primary-rgb), 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.08)",
         duration: 0.4,
         overwrite: "auto",
         ease: "power3.out",
       });
 
-      if (shineOpacityTo && shineXTo && shineYTo) {
-        shineOpacityTo(0);
-        shineXTo(-14);
-        shineYTo(-14);
-      }
+      updateCodeCardTilt();
     };
 
-    codeCard.addEventListener("mouseenter", handleEnter);
-    codeCard.addEventListener("mousemove", handleMove);
-    codeCard.addEventListener("mouseleave", handleLeave);
+    const visibilityTrigger = ScrollTrigger.create({
+      trigger: section,
+      start: "top bottom",
+      end: "bottom top",
+      onEnter: () => {
+        isWelcomeVisible = true;
+        updateCodeCardTilt();
+      },
+      onEnterBack: () => {
+        isWelcomeVisible = true;
+        updateCodeCardTilt();
+      },
+      onLeave: () => {
+        isWelcomeVisible = false;
+        resetCodeCardTilt();
+      },
+      onLeaveBack: () => {
+        isWelcomeVisible = false;
+        resetCodeCardTilt();
+      },
+      onUpdate: () => {
+        updateCodeCardTilt();
+      },
+    });
+
+    window.addEventListener("pointermove", handleWindowPointerMove);
+    codeCard.addEventListener("pointerenter", handlePointerEnter);
+    codeCard.addEventListener("pointerleave", handlePointerLeave);
 
     cleanupFns.push(() => {
-      codeCard.removeEventListener("mouseenter", handleEnter);
-      codeCard.removeEventListener("mousemove", handleMove);
-      codeCard.removeEventListener("mouseleave", handleLeave);
+      visibilityTrigger.kill();
+      window.removeEventListener("pointermove", handleWindowPointerMove);
+      codeCard.removeEventListener("pointerenter", handlePointerEnter);
+      codeCard.removeEventListener("pointerleave", handlePointerLeave);
     });
   }
 
@@ -378,14 +472,14 @@ export function initWelcomeAnimation({ gsap, ScrollTrigger }) {
     onUpdate: (self) => {
       const progress = self.progress;
 
-      gsap.to(codeCard, {
-        rotateY: gsap.utils.mapRange(0, 1, -5, 6, progress),
-        rotateX: gsap.utils.mapRange(0, 1, 2, -4, progress),
-        y: gsap.utils.mapRange(0, 1, 0, -18, progress),
-        duration: 0.35,
-        overwrite: "auto",
-        ease: "power2.out",
-      });
+      if (visual) {
+        gsap.to(visual, {
+          y: gsap.utils.mapRange(0, 1, 0, -18, progress),
+          duration: 0.35,
+          overwrite: "auto",
+          ease: "power2.out",
+        });
+      }
 
       if (glow) {
         gsap.to(glow, {
@@ -403,5 +497,3 @@ export function initWelcomeAnimation({ gsap, ScrollTrigger }) {
     cleanupFns.forEach((fn) => fn());
   };
 }
-
-

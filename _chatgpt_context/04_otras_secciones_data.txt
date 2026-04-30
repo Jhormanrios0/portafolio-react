@@ -1,0 +1,158 @@
+==================== OTHER SECTIONS / DATA ====================
+
+
+==================== FILE: src/components/sections/ProjectsSection.jsx ====================
+import { projects } from "../../data/projects";
+
+export default function ProjectsSection() {
+  return (
+    <div className="cards-grid">
+      {projects.map((project) => (
+        <article className="mini-card timeline-reveal" key={project.title}>
+          <h3>{project.title}</h3>
+          <p>{project.description}</p>
+
+          <div className="mini-card__tags">
+            {project.tech.map((item) => (
+              <span key={item}>{item}</span>
+            ))}
+          </div>
+        </article>
+      ))}
+    </div>
+  );
+}
+
+
+
+
+
+==================== FILE: src/components/sections/ExperienceSection.jsx ====================
+import { experiences } from "../../data/experience";
+
+export default function ExperienceSection() {
+  return (
+    <div className="experience-list">
+      {experiences.map((experience) => (
+        <article
+          className="experience-item timeline-reveal"
+          key={`${experience.role}-${experience.company}`}
+        >
+          <div className="experience-item__header">
+            <div>
+              <h3>{experience.role}</h3>
+              <p>{experience.company}</p>
+            </div>
+
+            <span>{experience.period}</span>
+          </div>
+
+          <p className="experience-item__description">
+            {experience.description}
+          </p>
+
+          <div className="mini-card__tags">
+            {experience.stack.map((item) => (
+              <span key={item}>{item}</span>
+            ))}
+          </div>
+        </article>
+      ))}
+    </div>
+  );
+}
+
+
+
+
+
+==================== FILE: src/components/sections/ServicesSection.jsx ====================
+import { services } from "../../data/services";
+
+export default function ServicesSection() {
+  return (
+    <div className="cards-grid">
+      {services.map((service) => (
+        <article className="mini-card timeline-reveal" key={service.title}>
+          <h3>{service.title}</h3>
+          <p>{service.description}</p>
+        </article>
+      ))}
+    </div>
+  );
+}
+
+
+
+
+
+==================== FILE: src/components/sections/ContactSection.jsx ====================
+export default function ContactSection() {
+  return (
+    <div className="contact-box">
+      <p className="timeline-reveal">
+        Estoy disponible para crear interfaces, portafolios, dashboards,
+        landing pages y experiencias web animadas.
+      </p>
+
+      <a
+        className="btn btn--primary timeline-reveal"
+        href="mailto:tu-correo@email.com"
+      >
+        Enviar correo
+      </a>
+    </div>
+  );
+}
+
+
+
+
+
+==================== FILE: src/data/projects.js ====================
+export const projects = [
+  {
+    title: "Sistema de reservas",
+    description:
+      "Aplicación para gestionar reservas, usuarios, tours, pagos y cupones.",
+    tech: ["React", "JavaScript", "CSS", "GSAP"],
+  },
+  {
+    title: "Dashboard administrativo",
+    description:
+      "Panel moderno con navegación, tarjetas, métricas y experiencia responsive.",
+    tech: ["React", "GSAP", "CSS"],
+  },
+  {
+    title: "Portafolio animado",
+    description:
+      "Experiencia tipo línea de tiempo con scroll animado y navegación lateral.",
+    tech: ["React", "GSAP", "ScrollTrigger"],
+  },
+];
+
+
+
+
+
+==================== FILE: src/data/services.js ====================
+export const services = [
+  {
+    title: "Desarrollo Frontend",
+    description:
+      "Interfaces modernas, rápidas y responsivas usando React, HTML, CSS y JavaScript.",
+  },
+  {
+    title: "Animaciones web",
+    description:
+      "Experiencias interactivas con GSAP, ScrollTrigger y microinteracciones.",
+  },
+  {
+    title: "Maquetación UI",
+    description:
+      "Conversión de diseños en interfaces limpias, escalables y mantenibles.",
+  },
+];
+
+
+

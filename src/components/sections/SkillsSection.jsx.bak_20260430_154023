@@ -1,0 +1,205 @@
+import {
+  FaBootstrap,
+  FaCss3Alt,
+  FaGitAlt,
+  FaGithub,
+  FaHtml5,
+  FaNodeJs,
+  FaNpm,
+  FaReact,
+} from "react-icons/fa";
+import {
+  SiExpress,
+  SiFigma,
+  SiFramer,
+  SiGreensock,
+  SiJavascript,
+  SiMongodb,
+  SiMysql,
+  SiNetlify,
+  SiPostgresql,
+  SiPostman,
+  SiSass,
+  SiTailwindcss,
+  SiTypescript,
+  SiVercel,
+  SiVite,
+} from "react-icons/si";
+import { MdDevices } from "react-icons/md";
+import { TbApi, TbWaveSine } from "react-icons/tb";
+
+const skillGroups = [
+  {
+    id: "frontend",
+    label: "Frontend",
+    accent: "#4da3ff",
+    skills: [
+      ["HTML", "Estructura", FaHtml5],
+      ["CSS", "Estilos", FaCss3Alt],
+      ["JavaScript", "Interacción", SiJavascript],
+      ["TypeScript", "Tipado", SiTypescript],
+      ["React", "Componentes", FaReact],
+      ["Vite", "Build rápido", SiVite],
+      ["Tailwind", "Sistema visual", SiTailwindcss],
+      ["Sass", "CSS avanzado", SiSass],
+      ["Bootstrap", "UI rápida", FaBootstrap],
+      ["Responsive", "Adaptabilidad", MdDevices],
+    ],
+  },
+  {
+    id: "motion",
+    label: "Motion",
+    accent: "#7dd3fc",
+    skills: [
+      ["GSAP", "Scroll & motion", SiGreensock],
+      ["Lenis", "Smooth scroll", TbWaveSine],
+      ["Framer", "Microinteracción", SiFramer],
+    ],
+  },
+  {
+    id: "backend",
+    label: "Backend / Data",
+    accent: "#5eead4",
+    skills: [
+      ["Node.js", "Runtime", FaNodeJs],
+      ["Express", "Servidor", SiExpress],
+      ["APIs REST", "Servicios", TbApi],
+      ["MySQL", "Relacional", SiMysql],
+      ["PostgreSQL", "Relacional", SiPostgresql],
+      ["MongoDB", "NoSQL", SiMongodb],
+    ],
+  },
+  {
+    id: "workflow",
+    label: "Workflow",
+    accent: "#c4b5fd",
+    skills: [
+      ["Git", "Versionado", FaGitAlt],
+      ["GitHub", "Repositorios", FaGithub],
+      ["Figma", "Diseño UI", SiFigma],
+      ["Postman", "Testing API", SiPostman],
+      ["NPM", "Paquetes", FaNpm],
+      ["Vercel", "Deploy", SiVercel],
+      ["Netlify", "Deploy", SiNetlify],
+    ],
+  },
+];
+
+const skillDeck = skillGroups.flatMap((group) =>
+  group.skills.map(([name, description, Icon]) => ({
+    name,
+    description,
+    Icon,
+    group: group.label,
+    groupId: group.id,
+    accent: group.accent,
+  })),
+);
+
+export default function SkillsSection() {
+  return (
+    <div className="skills-scroll-deck" data-skills-deck-root>
+      <div className="skills-scroll-deck__ambient" aria-hidden="true" />
+      <div className="skills-scroll-deck__paint" aria-hidden="true" />
+
+      <header className="skills-scroll-header">
+        <p className="skills-scroll-header__eyebrow" data-skills-header-item>
+          Habilidades técnicas
+        </p>
+
+        <h2 className="skills-scroll-header__title" data-skills-header-item>
+          Un stack técnico diseñado para construir experiencias digitales sólidas,
+          fluidas y memorables.
+        </h2>
+
+        <p className="skills-scroll-header__text" data-skills-header-item>
+          Integro estructura visual, movimiento, conexión con datos y flujo de
+          desarrollo para crear productos claros, rápidos y escalables.
+        </p>
+
+        <div className="skills-scroll-header__stats" data-skills-header-item>
+          <span>
+            <strong>{skillDeck.length}</strong>
+            Skills
+          </span>
+
+          <span>
+            <strong>{skillGroups.length}</strong>
+            Áreas
+          </span>
+
+          <span>
+            <strong>GSAP</strong>
+            Motion
+          </span>
+        </div>
+      </header>
+
+      <section
+        className="skills-scroll-stage"
+        data-skills-stage
+        aria-label="Stack técnico animado por scroll"
+      >
+        <div className="skills-scroll-stage__topline" aria-hidden="true">
+          <span>Línea temporal técnica</span>
+          <span data-skills-state-label>Cards dispersas</span>
+        </div>
+
+        <div className="skills-scroll-timeline" aria-hidden="true">
+          <span className="skills-scroll-timeline__track">
+            <span className="skills-scroll-timeline__progress" />
+          </span>
+
+          <div className="skills-scroll-timeline__nodes">
+            {skillGroups.map((group, index) => (
+              <span
+                className="skills-scroll-timeline__node"
+                data-skills-node
+                key={group.id}
+                style={{ "--node-accent": group.accent }}
+              >
+                <b>{String(index + 1).padStart(2, "0")}</b>
+                <small>{group.label}</small>
+              </span>
+            ))}
+          </div>
+        </div>
+
+        <div className="skills-scroll-stack" data-skills-stack>
+          <div className="skills-scroll-cover" data-skills-cover aria-hidden="true">
+            <span>Stack</span>
+            <strong>{skillDeck.length}</strong>
+            <small>skills</small>
+          </div>
+
+          {skillDeck.map((skill, index) => (
+            <article
+              className={`skills-scroll-card skills-scroll-card--${skill.groupId}`}
+              data-skill-card
+              key={`${skill.groupId}-${skill.name}`}
+              style={{
+                "--skill-accent": skill.accent,
+                "--skill-index": index,
+              }}
+            >
+              <div className="skills-scroll-card__float" data-skill-float>
+                <span className="skills-scroll-card__shine" aria-hidden="true" />
+
+                <span className="skills-scroll-card__icon">
+                  <skill.Icon />
+                </span>
+
+                <span className="skills-scroll-card__body">
+                  <strong>{skill.name}</strong>
+                  <small>{skill.description}</small>
+                </span>
+
+                <span className="skills-scroll-card__group">{skill.group}</span>
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+    </div>
+  );
+}

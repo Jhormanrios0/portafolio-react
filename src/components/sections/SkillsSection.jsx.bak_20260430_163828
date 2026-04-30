@@ -33,7 +33,6 @@ const skillGroups = [
     number: "01",
     title: "Frontend",
     label: "Interface Layer",
-    tone: "frontend",
     items: [
       { name: "HTML", meta: "Structure", Icon: FaHtml5 },
       { name: "CSS", meta: "Visual System", Icon: FaCss3Alt },
@@ -51,7 +50,6 @@ const skillGroups = [
     number: "02",
     title: "Motion",
     label: "Experience Layer",
-    tone: "motion",
     items: [
       { name: "GSAP", meta: "Scroll Motion", Icon: SiGreensock },
       { name: "Lenis", meta: "Smooth Scroll", Icon: TbWaveSine },
@@ -62,7 +60,6 @@ const skillGroups = [
     number: "03",
     title: "Backend / Data",
     label: "Connection Layer",
-    tone: "backend",
     items: [
       { name: "Node.js", meta: "Runtime", Icon: FaNodeJs },
       { name: "Express", meta: "Server", Icon: SiExpress },
@@ -76,7 +73,6 @@ const skillGroups = [
     number: "04",
     title: "Workflow",
     label: "Delivery Layer",
-    tone: "workflow",
     items: [
       { name: "Git", meta: "Versioning", Icon: FaGitAlt },
       { name: "GitHub", meta: "Repositories", Icon: FaGithub },
@@ -95,7 +91,6 @@ const skillCards = skillGroups.flatMap((group) =>
     groupNumber: group.number,
     groupTitle: group.title,
     groupLabel: group.label,
-    tone: group.tone,
   }))
 );
 
@@ -131,12 +126,7 @@ export default function SkillsSection() {
 
         <div className="skills-orbit__steps">
           {skillGroups.map((group) => (
-            <span
-              className="skills-orbit-step"
-              data-skills-step
-              data-skill-tone={group.tone}
-              key={group.title}
-            >
+            <span className="skills-orbit-step" data-skills-step key={group.title}>
               <b>{group.number}</b>
               <strong>{group.title}</strong>
               <small>{group.label}</small>
@@ -146,11 +136,10 @@ export default function SkillsSection() {
       </div>
 
       <div className="skills-orbit__cards" data-skills-cards>
-        {skillCards.map(({ name, meta, Icon, groupNumber, groupTitle, tone }, index) => (
+        {skillCards.map(({ name, meta, Icon, groupNumber, groupTitle }, index) => (
           <article
             className="skills-orbit-card"
             data-skill-card
-            data-skill-tone={tone}
             key={`${groupTitle}-${name}`}
             style={{ "--skill-index": index }}
           >

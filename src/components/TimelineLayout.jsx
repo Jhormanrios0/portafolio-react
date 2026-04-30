@@ -4,6 +4,7 @@ import Lenis from "lenis";
 import { gsap, ScrollTrigger, useGSAP } from "../utils/gsapConfig";
 import { sections } from "../data/sections";
 import { initWelcomeAnimation } from "../animations/welcome.animation";
+import { initSkillsAnimation } from "../animations/skills.animation";
 
 import Sidebar from "./Sidebar";
 import SectionBlock from "./SectionBlock";
@@ -26,7 +27,10 @@ const sectionComponents = {
 
 const WAVE_VIEWBOX_HEIGHT = 620;
 
-const WAVE_PATH = "M32 0 C4 88 72 148 32 232 C-4 324 78 398 32 486 C8 554 62 596 32 620";
+const WAVE_PATH =
+  "M32 0 C4 88 72 148 32 232 C-4 324 78 398 32 486 C8 554 62 596 32 620";
+
+const DEFAULT_SECTION_SELECTOR = ".timeline-section:not(.section--skills)";
 
 export default function TimelineLayout() {
   const rootRef = useRef(null);
@@ -44,7 +48,6 @@ export default function TimelineLayout() {
 
   const handleNavigate = (id) => {
     const target = document.querySelector(`#${id}`);
-
     if (!target) return;
 
     if (lenisRef.current) {
@@ -56,27 +59,27 @@ export default function TimelineLayout() {
       return;
     }
 
-    gsap.to(window, {
-      duration: 1.15,
-      scrollTo: {
-        y: target,
-        offsetY: 30,
-      },
-      ease: "power3.inOut",
+    const top = target.getBoundingClientRect().top + window.scrollY - 30;
+
+    window.scrollTo({
+      top,
+      behavior: "smooth",
     });
   };
 
   useGSAP(
     () => {
       const prefersReducedMotion = window.matchMedia(
-        "(prefers-reduced-motion: reduce)"
+        "(prefers-reduced-motion: reduce)",
       ).matches;
 
       let lenis;
       let raf;
       let progressTrigger;
       let resizeCall;
+      let initialRefreshCall;
       let cleanupWelcomeAnimation;
+      let cleanupSkillsAnimation;
 
       const allMarkers = gsap.utils.toArray(".timeline-section__marker");
       const allSections = gsap.utils.toArray(".timeline-section");
@@ -99,10 +102,13 @@ export default function TimelineLayout() {
         const lastSectionRect =
           allSections[allSections.length - 1].getBoundingClientRect();
 
-        const startY = firstMarkerRect.top - contentRect.top + firstMarkerRect.height / 2 - 36;
+        const startY =
+          firstMarkerRect.top -
+          contentRect.top +
+          firstMarkerRect.height / 2 -
+          36;
 
         const endY = lastSectionRect.bottom - contentRect.top;
-
         const safeHeight = Math.max(420, endY - startY + 18);
 
         gsap.set(timelineLine, {
@@ -184,7 +190,7 @@ export default function TimelineLayout() {
               autoAlpha: 0,
               scale: 0.35,
             },
-            "<"
+            "<",
           );
         }
 
@@ -209,7 +215,7 @@ export default function TimelineLayout() {
               duration: 0.18,
               ease: "power3.out",
             },
-            "<"
+            "<",
           );
         }
 
@@ -226,7 +232,7 @@ export default function TimelineLayout() {
               duration: 0.85,
               ease: "power3.out",
             },
-            "<"
+            "<",
           );
         }
 
@@ -258,7 +264,7 @@ export default function TimelineLayout() {
               duration: 0.22,
               ease: "power3.out",
             },
-            "-=0.2"
+            "-=0.2",
           );
         }
       };
@@ -277,6 +283,7 @@ export default function TimelineLayout() {
       };
 
       allMarkers.forEach((marker) => turnMarkerOff(marker, true));
+      activateMarkerByIndex(0);
 
       if (!prefersReducedMotion) {
         lenis = new Lenis({
@@ -302,16 +309,28 @@ export default function TimelineLayout() {
         autoAlpha: 1,
       });
 
-      gsap.set(".section-card", {
+      gsap.set(`${DEFAULT_SECTION_SELECTOR} .section-card`, {
         autoAlpha: 0,
         y: 100,
         scale: 0.96,
-        filter: "blur(12px)",
       });
 
-      gsap.set(".section-card__eyebrow, .section-card h2, .timeline-reveal", {
-        autoAlpha: 0,
-        y: 36,
+      gsap.set(
+        [
+          `${DEFAULT_SECTION_SELECTOR} .section-card__eyebrow`,
+          `${DEFAULT_SECTION_SELECTOR} .section-card h2`,
+          `${DEFAULT_SECTION_SELECTOR} .timeline-reveal`,
+        ].join(", "),
+        {
+          autoAlpha: 0,
+          y: 36,
+        },
+      );
+
+      gsap.set(".section--skills .section-card", {
+        autoAlpha: 1,
+        y: 0,
+        scale: 1,
       });
 
       gsap.from(".portfolio-header", {
@@ -322,6 +341,7 @@ export default function TimelineLayout() {
       });
 
       cleanupWelcomeAnimation = initWelcomeAnimation({ gsap, ScrollTrigger });
+      cleanupSkillsAnimation = initSkillsAnimation({ gsap, ScrollTrigger });
 
       updateTimelineBounds();
 
@@ -391,108 +411,112 @@ export default function TimelineLayout() {
         });
       }
 
-      gsap.utils.toArray(".timeline-section").forEach((sectionEl, index) => {
-        const card = sectionEl.querySelector(".section-card");
+      allSections.forEach((sectionEl, index) => {
         const marker = sectionEl.querySelector(".timeline-section__marker");
-        const eyebrow = sectionEl.querySelector(".section-card__eyebrow");
-        const title = sectionEl.querySelector(".section-card h2");
-        const revealItems = sectionEl.querySelectorAll(".timeline-reveal");
+        const isSkillsSection = sectionEl.classList.contains("section--skills");
 
-        const sectionTimeline = gsap.timeline({
-          scrollTrigger: {
-            trigger: sectionEl,
-            start: "top 82%",
-            end: "bottom 18%",
-            scrub: 0.9,
-            invalidateOnRefresh: true,
-          },
-        });
+        if (!isSkillsSection) {
+          const card = sectionEl.querySelector(".section-card");
+          const eyebrow = sectionEl.querySelector(".section-card__eyebrow");
+          const title = sectionEl.querySelector(".section-card h2");
+          const revealItems = sectionEl.querySelectorAll(".timeline-reveal");
 
-        sectionTimeline
-          .to(card, {
-            autoAlpha: 1,
-            y: 0,
-            scale: 1,
-            filter: "blur(0px)",
-            duration: 0.42,
-            ease: "power3.out",
-          })
-          .to(
-            eyebrow,
-            {
-              autoAlpha: 1,
-              y: 0,
-              duration: 0.18,
-              ease: "power2.out",
+          const sectionTimeline = gsap.timeline({
+            scrollTrigger: {
+              trigger: sectionEl,
+              start: "top 82%",
+              end: "bottom 18%",
+              scrub: 0.9,
+              invalidateOnRefresh: true,
             },
-            "-=0.18"
-          )
-          .to(
-            title,
-            {
-              autoAlpha: 1,
-              y: 0,
-              duration: 0.2,
-              ease: "power2.out",
-            },
-            "-=0.1"
-          );
+          });
 
-        if (revealItems.length) {
-          sectionTimeline.to(
-            revealItems,
-            {
+          sectionTimeline
+            .to(card, {
               autoAlpha: 1,
               y: 0,
-              duration: 0.45,
-              stagger: 0.12,
+              scale: 1,
+              duration: 0.42,
               ease: "power3.out",
-            },
-            "-=0.06"
-          );
+            })
+            .to(
+              eyebrow,
+              {
+                autoAlpha: 1,
+                y: 0,
+                duration: 0.18,
+                ease: "power2.out",
+              },
+              "-=0.18",
+            )
+            .to(
+              title,
+              {
+                autoAlpha: 1,
+                y: 0,
+                duration: 0.2,
+                ease: "power2.out",
+              },
+              "-=0.1",
+            );
+
+          if (revealItems.length) {
+            sectionTimeline.to(
+              revealItems,
+              {
+                autoAlpha: 1,
+                y: 0,
+                duration: 0.45,
+                stagger: 0.12,
+                ease: "power3.out",
+              },
+              "-=0.06",
+            );
+          }
+
+          sectionTimeline.to({}, { duration: 0.18 });
+
+          if (index !== sections.length - 1) {
+            sectionTimeline.to(card, {
+              autoAlpha: 0,
+              y: -70,
+              scale: 0.97,
+              duration: 0.32,
+              ease: "power2.in",
+            });
+          }
         }
 
-        sectionTimeline.to({}, { duration: 0.18 });
+        if (marker) {
+          ScrollTrigger.create({
+            trigger: marker,
+            start: "center 54%",
+            end: "center 46%",
+            invalidateOnRefresh: true,
 
-        if (index !== sections.length - 1) {
-          sectionTimeline.to(card, {
-            autoAlpha: 0,
-            y: -70,
-            scale: 0.97,
-            filter: "blur(10px)",
-            duration: 0.32,
-            ease: "power2.in",
+            onEnter: () => {
+              activateMarkerByIndex(index);
+            },
+
+            onEnterBack: () => {
+              activateMarkerByIndex(index);
+            },
+
+            onLeave: () => {
+              activateMarkerByIndex(index);
+            },
+
+            onLeaveBack: () => {
+              if (index === 0) {
+                allMarkers.forEach((item) => turnMarkerOff(item));
+                activateMarkerByIndex(0);
+                return;
+              }
+
+              activateMarkerByIndex(index - 1);
+            },
           });
         }
-
-        ScrollTrigger.create({
-          trigger: marker,
-          start: "center 54%",
-          end: "center 46%",
-          invalidateOnRefresh: true,
-
-          onEnter: () => {
-            activateMarkerByIndex(index);
-          },
-
-          onEnterBack: () => {
-            activateMarkerByIndex(index);
-          },
-
-          onLeave: () => {
-            activateMarkerByIndex(index);
-          },
-
-          onLeaveBack: () => {
-            if (index === 0) {
-              allMarkers.forEach((item) => turnMarkerOff(item));
-              setActiveId(sections[0].id);
-              return;
-            }
-
-            activateMarkerByIndex(index - 1);
-          },
-        });
       });
 
       const handleResize = () => {
@@ -506,16 +530,25 @@ export default function TimelineLayout() {
 
       window.addEventListener("resize", handleResize);
 
-      gsap.delayedCall(0.1, () => {
+      initialRefreshCall = gsap.delayedCall(0.1, () => {
         updateTimelineBounds();
         ScrollTrigger.refresh();
       });
 
       return () => {
+        if (typeof cleanupSkillsAnimation === "function") {
+          cleanupSkillsAnimation();
+        }
+
         if (typeof cleanupWelcomeAnimation === "function") {
           cleanupWelcomeAnimation();
         }
+
         window.removeEventListener("resize", handleResize);
+
+        if (initialRefreshCall) {
+          initialRefreshCall.kill();
+        }
 
         if (resizeCall) {
           resizeCall.kill();
@@ -535,7 +568,7 @@ export default function TimelineLayout() {
         }
       };
     },
-    { scope: rootRef }
+    { scope: rootRef },
   );
 
   return (
@@ -544,9 +577,9 @@ export default function TimelineLayout() {
 
       <main className="portfolio-main">
         <header className="portfolio-header">
-  <p>{"Portafolio / Desarrollo Web / Animaci\u00f3n"}</p>
-  <h1>{"Interfaces digitales con precisi\u00f3n, movimiento y prop\u00f3sito."}</h1>
-</header>
+          <p>Portafolio / Desarrollo Web / Animación</p>
+          <h1>Interfaces digitales con precisión, movimiento y propósito.</h1>
+        </header>
 
         <div className="timeline-content" ref={timelineContentRef}>
           <div
@@ -603,10 +636,3 @@ export default function TimelineLayout() {
     </div>
   );
 }
-
-
-
-
-
-
-

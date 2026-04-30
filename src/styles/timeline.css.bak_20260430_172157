@@ -3746,34 +3746,3 @@ body.skills-story-lock .timeline-section__marker {
 
 /* SKILLS_TIMELINE_VISIBILITY_TUNE_END */
 
-
-/* SKILLS_CARDS_LOWER_FINAL_START */
-
-/* Bajamos un poco mas las cards para destapar la linea temporal interna */
-.skills-orbit__cards {
-  top: clamp(490px, 57svh, 560px) !important;
-}
-
-/* Tablet grande */
-@media (max-width: 1180px) {
-  .skills-orbit__cards {
-    top: clamp(472px, 56svh, 528px) !important;
-  }
-}
-
-/* Tablet / pantallas medianas */
-@media (max-width: 940px) {
-  .skills-orbit__cards {
-    top: clamp(452px, 54svh, 500px) !important;
-  }
-}
-
-/* Mobile sigue normal porque ya va en flujo vertical */
-@media (max-width: 760px) {
-  .skills-orbit__cards {
-    margin-top: 44px !important;
-  }
-}
-
-/* SKILLS_CARDS_LOWER_FINAL_END */
-
