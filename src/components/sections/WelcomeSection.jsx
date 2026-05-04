@@ -37,11 +37,11 @@ export default function WelcomeSection() {
         </div>
 
         <div className="welcome-hero__visual" aria-hidden="true">
-          <div className="welcome-code-card">
-            <div className="welcome-code-card__inner">
+          <div className="welcome-code-card" data-welcome-profile>
+            <div className="welcome-code-card__inner" data-welcome-profile>
               <div className="welcome-code-card__shine" />
 
-              <div className="welcome-code-card__top">
+              <div className="welcome-code-card__top" data-welcome-profile>
                 <span />
                 <span />
                 <span />
@@ -80,5 +80,7 @@ export default function WelcomeSection() {
     </div>
   );
 }
+
+
 
 
