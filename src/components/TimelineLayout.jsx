@@ -580,8 +580,8 @@ export default function TimelineLayout() {
 
       <main className="portfolio-main">
         <header className="portfolio-header">
-          <p>Portafolio / Desarrollo Web / Animación</p>
-          <h1>Interfaces digitales con precisión, movimiento y propósito.</h1>
+          <p></p>
+          <h1>Software completo con diseño, datos y propósito.</h1>
         </header>
 
         <div className="timeline-content" ref={timelineContentRef}>
@@ -639,6 +639,8 @@ export default function TimelineLayout() {
     </div>
   );
 }
+
+
 
 
 

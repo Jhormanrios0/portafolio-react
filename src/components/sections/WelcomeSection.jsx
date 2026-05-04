@@ -7,7 +7,7 @@ export default function WelcomeSection() {
 
       <div className="welcome-hero">
         <div className="welcome-hero__content">
-          <p className="welcome-kicker">Ingeniero de Software / Frontend Developer</p>
+          <p className="welcome-kicker">Ingeniero de Software.</p>
 
           <h3
             className="welcome-title"
@@ -48,12 +48,12 @@ export default function WelcomeSection() {
               </div>
 
               <pre>
-{`const profile = {
+                {`const profile = {
   name: "Jhorman",
   role: "Software Engineer",
-  craft: "Frontend Development",
-  focus: ["UI", "Motion", "Performance"],
-  mindset: "Build with detail"
+  craft: "Full-Stack Engineering",
+  focus: ["Full Stack", "Data", "Product"],
+  mindset: "Build complete systems"
 };`}
               </pre>
             </div>
@@ -80,7 +80,4 @@ export default function WelcomeSection() {
     </div>
   );
 }
-
-
-
 

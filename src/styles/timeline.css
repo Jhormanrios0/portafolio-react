@@ -4488,3 +4488,19 @@ html.projects-low-power .project-stable-card__surface {
 
 /* PROJECTS_HOVER_CLEAN_V19_END */
 
+
+/* HIDE_EMPTY_EYEBROWS_START */
+
+.welcome-eyebrow:empty,
+.welcome-kicker:empty,
+.hero-eyebrow:empty,
+.hero-kicker:empty,
+.section-eyebrow:empty,
+.section-kicker:empty,
+.section-label:empty,
+[data-welcome-eyebrow]:empty {
+  display: none !important;
+}
+
+/* HIDE_EMPTY_EYEBROWS_END */
+

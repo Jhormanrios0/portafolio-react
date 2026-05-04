@@ -247,3 +247,4 @@ export function initProjectsAnimation({ gsap, ScrollTrigger }) {
   };
 }
 
+
