@@ -1,19 +1,124 @@
 import { gsap } from "gsap";
 
-export function initCustomCursor() {
-  const canUseCursor =
-    typeof window !== "undefined" &&
-    window.matchMedia("(pointer: fine)").matches &&
-    !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const CLICKABLE_SELECTOR = [
+  "a[href]",
+  "button:not([disabled])",
+  "[role='button']",
+  "summary",
+  ".menu-fab",
+  ".menu-panel__link",
+  ".menu-panel__close",
+  ".project-stable-card",
+  ".project-card",
+  ".career-sticky-card",
+  ".service-card",
+  ".skill-card",
+  ".contact-card",
+  "[data-cursor]",
+  "[data-cursor-label]",
+  "[data-cursor-fit]",
+  "[data-cursor-magnetic]",
+].join(",");
 
-  if (!canUseCursor) return () => {};
+const INPUT_SELECTOR =
+  "input, textarea, select, [contenteditable='true']";
+
+const DISABLED_SELECTOR =
+  "[disabled], [aria-disabled='true'], .is-disabled, [data-cursor-fit='false']";
+
+function canUseCursor() {
+  return (
+    typeof window !== "undefined" &&
+    typeof document !== "undefined" &&
+    window.matchMedia("(pointer: fine)").matches &&
+    !window.matchMedia("(prefers-reduced-motion: reduce)").matches
+  );
+}
+
+function getClickableTarget(target) {
+  if (!target || !(target instanceof Element)) return null;
+  if (target.closest(INPUT_SELECTOR)) return null;
+
+  const clickable = target.closest(CLICKABLE_SELECTOR);
+
+  if (!clickable) return null;
+  if (clickable.matches(DISABLED_SELECTOR)) return null;
+  if (clickable.closest("[data-custom-cursor-root]")) return null;
+
+  return clickable;
+}
+
+function getTargetRadius(target) {
+  const computed = window.getComputedStyle(target);
+  const radius = Number.parseFloat(computed.borderRadius);
+
+  if (Number.isNaN(radius) || radius <= 0) return 18;
+
+  return Math.min(Math.max(radius, 12), 36);
+}
+
+function getCursorState(target) {
+  if (!target || !(target instanceof Element)) {
+    return {
+      mode: "default",
+      text: "",
+      fitTarget: null,
+    };
+  }
+
+  if (target.closest(INPUT_SELECTOR)) {
+    return {
+      mode: "input",
+      text: "",
+      fitTarget: null,
+    };
+  }
+
+  const fitTarget = getClickableTarget(target);
+
+  if (!fitTarget) {
+    return {
+      mode: "default",
+      text: "",
+      fitTarget: null,
+    };
+  }
+
+  const customMode = fitTarget.getAttribute("data-cursor");
+  const customLabel = fitTarget.getAttribute("data-cursor-label");
+
+  if (customMode || customLabel) {
+    return {
+      mode: customMode || "link",
+      text: customLabel || "",
+      fitTarget,
+    };
+  }
+
+  if (fitTarget.matches(".project-stable-card, .project-card")) {
+    return {
+      mode: "project",
+      text: fitTarget.getAttribute("aria-label") || "",
+      fitTarget,
+    };
+  }
+
+  return {
+    mode: "link",
+    text: "",
+    fitTarget,
+  };
+}
+
+export function initCustomCursor() {
+  if (!canUseCursor()) return () => {};
 
   document.querySelector("[data-custom-cursor-root]")?.remove();
 
   document.body.classList.add("has-custom-cursor");
 
   const root = document.createElement("div");
-  root.className = "custom-cursor";
+  root.className = "custom-cursor is-default";
   root.setAttribute("data-custom-cursor-root", "");
 
   root.innerHTML = `
@@ -43,20 +148,28 @@ export function initCustomCursor() {
 
   if (!frame || !core) return () => {};
 
-  let targetX = window.innerWidth / 2;
-  let targetY = window.innerHeight / 2;
-  let frameX = targetX;
-  let frameY = targetY;
+  let mouseX = window.innerWidth / 2;
+  let mouseY = window.innerHeight / 2;
+
+  let frameX = mouseX;
+  let frameY = mouseY;
+
+  let activeFitTarget = null;
   let rafId = null;
   let visible = false;
   let currentMode = "";
   let currentLabel = "";
+  let isDown = false;
+
+  root.style.setProperty("--cursor-fit-width", "42px");
+  root.style.setProperty("--cursor-fit-height", "42px");
+  root.style.setProperty("--cursor-fit-radius", "999px");
 
   gsap.set([frame, core], {
     xPercent: -50,
     yPercent: -50,
-    x: targetX,
-    y: targetY,
+    x: mouseX,
+    y: mouseY,
     autoAlpha: 0,
     force3D: true,
   });
@@ -66,16 +179,75 @@ export function initCustomCursor() {
   const setCoreX = gsap.quickSetter(core, "x", "px");
   const setCoreY = gsap.quickSetter(core, "y", "px");
 
-  const render = () => {
-    // Mientras más alto el número, más pegado al mouse.
-    // 0.22 se siente natural sin quedar atrasado.
-    const ease = 0.22;
+  const updateFitVars = () => {
+    if (!activeFitTarget || !document.body.contains(activeFitTarget)) {
+      activeFitTarget = null;
+      root.classList.remove("is-fit");
+      return {
+        x: mouseX,
+        y: mouseY,
+      };
+    }
 
-    frameX += (targetX - frameX) * ease;
-    frameY += (targetY - frameY) * ease;
+    const rect = activeFitTarget.getBoundingClientRect();
+
+    if (rect.width <= 0 || rect.height <= 0) {
+      root.classList.remove("is-fit");
+      return {
+        x: mouseX,
+        y: mouseY,
+      };
+    }
+
+    const paddingX = Number(
+      activeFitTarget.dataset.cursorPaddingX ||
+        activeFitTarget.dataset.cursorFrameX ||
+        10
+    );
+
+    const paddingY = Number(
+      activeFitTarget.dataset.cursorPaddingY ||
+        activeFitTarget.dataset.cursorFrameY ||
+        8
+    );
+
+    const magnetic = Number(activeFitTarget.dataset.cursorMagnetic || 0.025);
+
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+
+    const offsetX = (mouseX - centerX) * magnetic;
+    const offsetY = (mouseY - centerY) * magnetic;
+
+    const width = Math.round(rect.width + paddingX * 2);
+    const height = Math.round(rect.height + paddingY * 2);
+    const radius = Math.round(getTargetRadius(activeFitTarget) + paddingY);
+
+    root.style.setProperty("--cursor-fit-width", `${width}px`);
+    root.style.setProperty("--cursor-fit-height", `${height}px`);
+    root.style.setProperty("--cursor-fit-radius", `${radius}px`);
+
+    root.classList.add("is-fit");
+
+    return {
+      x: centerX + offsetX,
+      y: centerY + offsetY,
+    };
+  };
+
+  const render = () => {
+    const targetFramePosition = updateFitVars();
+
+    const ease = activeFitTarget ? 0.42 : 0.34;
+
+    frameX += (targetFramePosition.x - frameX) * ease;
+    frameY += (targetFramePosition.y - frameY) * ease;
 
     setFrameX(frameX);
     setFrameY(frameY);
+
+    setCoreX(mouseX);
+    setCoreY(mouseY);
 
     rafId = window.requestAnimationFrame(render);
   };
@@ -106,114 +278,107 @@ export function initCustomCursor() {
     });
   };
 
-  const setMode = ({ mode, text }) => {
-    if (currentMode === mode && currentLabel === text) return;
+  const setMode = ({ mode, text, fitTarget }) => {
+    const nextText = text || "";
+
+    activeFitTarget = fitTarget || null;
+
+    if (currentMode === mode && currentLabel === nextText) return;
 
     currentMode = mode;
-    currentLabel = text;
+    currentLabel = nextText;
 
     root.classList.toggle("is-default", mode === "default");
     root.classList.toggle("is-link", mode === "link");
     root.classList.toggle("is-project", mode === "project");
     root.classList.toggle("is-input", mode === "input");
 
+    root.classList.toggle("is-down", isDown);
+
+    if (!activeFitTarget) {
+      root.classList.remove("is-fit");
+      root.style.setProperty("--cursor-fit-width", "42px");
+      root.style.setProperty("--cursor-fit-height", "42px");
+      root.style.setProperty("--cursor-fit-radius", "999px");
+    }
+
     if (label) {
-      label.textContent = text || "";
+      label.textContent = nextText;
     }
   };
 
-  const getCursorState = (target) => {
-    if (!target || !(target instanceof Element)) {
-      return { mode: "default", text: "" };
-    }
+  const onPointerMove = (event) => {
+    mouseX = event.clientX;
+    mouseY = event.clientY;
 
-    if (target.closest("input, textarea, select, [contenteditable='true']")) {
-      return { mode: "input", text: "" };
-    }
-
-    const custom = target.closest("[data-cursor], [data-cursor-label]");
-    if (custom) {
-      return {
-        mode: custom.getAttribute("data-cursor") || "link",
-        text: custom.getAttribute("data-cursor-label") || "",
-      };
-    }
-
-    if (target.closest(".project-stable-card")) {
-      return { mode: "project", text: "" };
-    }
-
-    if (target.closest(".skill-card, .service-card")) {
-      return { mode: "project", text: "" };
-    }
-
-    if (
-      target.closest(
-        "a, button, [role='button'], .menu-toggle, .theme-toggle, .floating-menu-button"
-      )
-    ) {
-      return { mode: "link", text: "" };
-    }
-
-    return { mode: "default", text: "" };
-  };
-
-  const handlePointerMove = (event) => {
     show();
-
-    targetX = event.clientX;
-    targetY = event.clientY;
-
-    // El punto va exacto al mouse.
-    setCoreX(targetX);
-    setCoreY(targetY);
-
-    // El frame/HUD lo sigue en el RAF.
     setMode(getCursorState(event.target));
   };
 
-  const handlePointerDown = () => {
+  const onPointerDown = () => {
+    isDown = true;
     root.classList.add("is-down");
+
+    gsap.to(core, {
+      scale: 0.82,
+      duration: 0.12,
+      ease: "power2.out",
+      overwrite: true,
+    });
   };
 
-  const handlePointerUp = () => {
+  const onPointerUp = () => {
+    isDown = false;
     root.classList.remove("is-down");
+
+    gsap.to(core, {
+      scale: 1,
+      duration: 0.18,
+      ease: "back.out(1.8)",
+      overwrite: true,
+    });
   };
 
-  const handleMouseLeave = () => {
+  const onBlur = () => {
     hide();
   };
 
-  const handleMouseEnter = () => {
+  const onFocus = () => {
     show();
   };
 
-  const handleVisibilityChange = () => {
-    if (document.hidden) hide();
+  const onLeave = () => {
+    hide();
   };
 
-  window.addEventListener("pointermove", handlePointerMove, { passive: true });
-  window.addEventListener("pointerdown", handlePointerDown, { passive: true });
-  window.addEventListener("pointerup", handlePointerUp, { passive: true });
-  document.documentElement.addEventListener("mouseleave", handleMouseLeave);
-  document.documentElement.addEventListener("mouseenter", handleMouseEnter);
-  document.addEventListener("visibilitychange", handleVisibilityChange);
+  const onEnter = () => {
+    show();
+  };
+
+  window.addEventListener("pointermove", onPointerMove, { passive: true });
+  window.addEventListener("pointerdown", onPointerDown, { passive: true });
+  window.addEventListener("pointerup", onPointerUp, { passive: true });
+  window.addEventListener("pointerleave", onLeave, { passive: true });
+  window.addEventListener("pointerenter", onEnter, { passive: true });
+  window.addEventListener("blur", onBlur);
+  window.addEventListener("focus", onFocus);
 
   return () => {
-    document.body.classList.remove("has-custom-cursor");
+    window.removeEventListener("pointermove", onPointerMove);
+    window.removeEventListener("pointerdown", onPointerDown);
+    window.removeEventListener("pointerup", onPointerUp);
+    window.removeEventListener("pointerleave", onLeave);
+    window.removeEventListener("pointerenter", onEnter);
+    window.removeEventListener("blur", onBlur);
+    window.removeEventListener("focus", onFocus);
 
     if (rafId) {
       window.cancelAnimationFrame(rafId);
     }
 
-    window.removeEventListener("pointermove", handlePointerMove);
-    window.removeEventListener("pointerdown", handlePointerDown);
-    window.removeEventListener("pointerup", handlePointerUp);
-    document.documentElement.removeEventListener("mouseleave", handleMouseLeave);
-    document.documentElement.removeEventListener("mouseenter", handleMouseEnter);
-    document.removeEventListener("visibilitychange", handleVisibilityChange);
-
+    document.body.classList.remove("has-custom-cursor");
     root.remove();
   };
 }
+
 

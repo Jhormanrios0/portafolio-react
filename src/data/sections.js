@@ -11,7 +11,7 @@ export const sections = [
     index: "02",
     label: "Habilidades",
     eyebrow: "Stack técnico",
-    title: "Tecnologías y herramientas",
+    title: "Stack técnico full stack",
   },
   {
     id: "projects",
@@ -42,6 +42,9 @@ export const sections = [
     title: "Construyamos algo juntos",
   },
 ];
+
+
+
 
 
 

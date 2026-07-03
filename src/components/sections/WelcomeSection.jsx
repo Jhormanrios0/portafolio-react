@@ -11,26 +11,42 @@ export default function WelcomeSection() {
 
           <h3
             className="welcome-title"
-            aria-label="Hola, soy Jhorman. Desarrollo productos web memorables."
+            aria-label="Hola, soy Jhorman. Construyo soluciones digitales completas."
           >
             <span className="welcome-title-line">Hola, soy Jhorman.</span>
-            <span className="welcome-title-line">Desarrollo productos</span>
+            <span className="welcome-title-line">Construyo soluciones</span>
             <span className="welcome-title-line welcome-title-line--accent">
-              web memorables.
+              digitales completas.
             </span>
           </h3>
 
           <p className="welcome-lead">
-            Transformo ideas en interfaces limpias, funcionales y animadas,
-            cuidando cada detalle de experiencia, rendimiento y diseño.
+            Diseño y desarrollo productos digitales con una base técnica clara:
+            interfaces modernas, lógica de negocio, consumo de APIs, datos,
+            rendimiento y estructura para que sean mantenibles, funcionales y
+            escalables.
           </p>
 
           <div className="welcome-actions">
-            <a className="btn btn--primary welcome-action" href="#projects">
+            <a
+              className="btn btn--primary welcome-action"
+              href="#projects"
+              data-cursor="button"
+              data-cursor-fit
+              data-cursor-padding-x="18"
+              data-cursor-padding-y="12"
+            >
               Ver proyectos
             </a>
 
-            <a className="btn btn--ghost welcome-action" href="#contact">
+            <a
+              className="btn btn--ghost welcome-action"
+              href="#contact"
+              data-cursor="button"
+              data-cursor-fit
+              data-cursor-padding-x="18"
+              data-cursor-padding-y="12"
+            >
               Hablemos
             </a>
           </div>
@@ -51,9 +67,9 @@ export default function WelcomeSection() {
                 {`const profile = {
   name: "Jhorman",
   role: "Software Engineer",
-  craft: "Full-Stack Engineering",
-  focus: ["Full Stack", "Data", "Product"],
-  mindset: "Build complete systems"
+  core: "Frontend strong",
+  scope: ["APIs", "Data", "Product", "Architecture"],
+  mindset: "Build useful, scalable systems"
 };`}
               </pre>
             </div>
@@ -63,21 +79,20 @@ export default function WelcomeSection() {
 
       <div className="welcome-stats">
         <div className="welcome-stats-item">
+          <strong>Software</strong>
+          <span>Diseño, lógica y estructura técnica</span>
+        </div>
+
+        <div className="welcome-stats-item">
           <strong>Frontend</strong>
-          <span>Interfaces modernas y responsive</span>
+          <span>Interfaces modernas y experiencias cuidadas</span>
         </div>
 
         <div className="welcome-stats-item">
-          <strong>Motion</strong>
-          <span>Animaciones fluidas con GSAP</span>
-        </div>
-
-        <div className="welcome-stats-item">
-          <strong>Producto</strong>
-          <span>Experiencias pensadas para usuarios</span>
+          <strong>Producto & datos</strong>
+          <span>Decisiones técnicas orientadas a valor</span>
         </div>
       </div>
     </div>
   );
 }
-

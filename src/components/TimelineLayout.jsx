@@ -6,6 +6,7 @@ import { sections } from "../data/sections";
 import { initWelcomeAnimation } from "../animations/welcome.animation";
 import { initSkillsAnimation } from "../animations/skills.animation";
 import { initProjectsAnimation } from "../animations/projects.animation";
+import { initExperienceAnimation } from "../animations/experience.animation";
 
 import Sidebar from "./Sidebar";
 import SectionBlock from "./SectionBlock";
@@ -82,6 +83,7 @@ export default function TimelineLayout() {
       let cleanupWelcomeAnimation;
       let cleanupSkillsAnimation;
       let cleanupProjectsAnimation;
+      let cleanupExperienceAnimation;
 
       const allMarkers = gsap.utils.toArray(".timeline-section__marker");
       const allSections = gsap.utils.toArray(".timeline-section");
@@ -345,6 +347,7 @@ export default function TimelineLayout() {
       cleanupWelcomeAnimation = initWelcomeAnimation({ gsap, ScrollTrigger });
       cleanupSkillsAnimation = initSkillsAnimation({ gsap, ScrollTrigger });
       cleanupProjectsAnimation = initProjectsAnimation({ gsap, ScrollTrigger });
+      cleanupExperienceAnimation = initExperienceAnimation({ gsap, ScrollTrigger });
 
       updateTimelineBounds();
 
@@ -539,6 +542,14 @@ export default function TimelineLayout() {
       });
 
       return () => {
+        if (typeof cleanupExperienceAnimation === "function") {
+          cleanupExperienceAnimation();
+        }
+
+        if (typeof cleanupProjectsAnimation === "function") {
+          cleanupProjectsAnimation();
+        }
+
         if (typeof cleanupSkillsAnimation === "function") {
           cleanupSkillsAnimation();
         }
@@ -639,6 +650,8 @@ export default function TimelineLayout() {
     </div>
   );
 }
+
+
 
 
 

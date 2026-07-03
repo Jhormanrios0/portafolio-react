@@ -1,29 +1,57 @@
 export const experiences = [
   {
-    role: "Ingeniero de Software / Desarrollador Frontend",
-    company: "Proyectos web y soluciones digitales",
-    period: "Actualidad",
-    description:
-      "Desarrollo de interfaces modernas, dashboards administrativos, sistemas de reservas y experiencias web responsivas.",
-    stack: ["React", "JavaScript", "CSS", "GSAP", "APIs REST"],
+    id: "software-engineering",
+    number: "01",
+    type: "Formación académica",
+    period: "Ene 2019 - Mar 2026",
+    role: "Ingeniería de Software",
+    company: "Formación universitaria",
+    mode: "Estudios profesionales",
+    location: "Colombia",
+    summary:
+      "Formación enfocada en el análisis, diseño, construcción y mantenimiento de soluciones de software, fortaleciendo bases técnicas para crear productos digitales escalables.",
+    achievements: [
+      "Aprendizaje de fundamentos de programación, lógica, estructuras de datos, bases de datos y arquitectura de software.",
+      "Desarrollo de proyectos académicos aplicando análisis de requerimientos, modelado, interfaces y lógica de negocio.",
+      "Construcción de una visión integral del ciclo de vida del software, desde la planeación hasta la entrega y mejora continua.",
+    ],
+    stack: [
+      "Programación",
+      "JavaScript",
+      "React",
+      "Bases de datos",
+      "APIs REST",
+      "Git",
+      "UI/UX",
+      "Arquitectura",
+    ],
   },
   {
-    role: "Desarrollador Frontend",
-    company: "Aplicaciones administrativas",
-    period: "Experiencia práctica",
-    description:
-      "Construcción de paneles administrativos, layouts responsivos, navegación protegida, componentes reutilizables y animaciones UI.",
-    stack: ["HTML", "CSS", "JavaScript", "Vue", "React"],
-  },
-  {
-    role: "Maquetador UI / Web Developer",
-    company: "Landing pages y micrositios",
-    period: "Proyectos web",
-    description:
-      "Maquetación de sitios web, optimización responsive, accesibilidad básica, estructura visual y experiencia de usuario.",
-    stack: ["HTML", "CSS", "Responsive Design", "Git"],
+    id: "software-developer",
+    number: "02",
+    type: "Experiencia profesional",
+    period: "Jun 2024 - Actualidad",
+    role: "Desarrollador de Software",
+    company: "Proyectos web, portales institucionales y soluciones digitales",
+    mode: "Rol profesional",
+    location: "Colombia / Remoto",
+    summary:
+      "Desarrollo de interfaces modernas, componentes reutilizables, experiencias web animadas y soluciones digitales orientadas a producto.",
+    achievements: [
+      "Construcción de interfaces responsivas, dashboards, landing pages, micrositios y componentes reutilizables.",
+      "Implementación de experiencias visuales con animaciones, transiciones, scroll narrativo y microinteracciones.",
+      "Integración de datos, consumo de APIs, organización de estructuras frontend y optimización de experiencia de usuario.",
+      "Trabajo con tecnologías modernas para entregar soluciones limpias, escalables y visualmente consistentes.",
+    ],
+    stack: [
+      "React",
+      "JavaScript",
+      "CSS",
+      "GSAP",
+      "Lenis",
+      "SharePoint",
+      "Power BI",
+      "APIs REST",
+    ],
   },
 ];
-
-
-

@@ -7,6 +7,28 @@ export function initSkillsAnimation({ gsap, ScrollTrigger }) {
 
   const cleanups = [];
 
+/* SKILLS_BODY_CLASS_TRIGGER_START */
+const setSkillsTimelineState = (isActive) => {
+  document.body.classList.toggle("skills-orbit-active", isActive);
+};
+
+const skillsBodyClassTrigger = ScrollTrigger.create({
+  id: "skillsBodyClassVisibility",
+  trigger: section,
+  start: "top bottom",
+  end: "bottom top",
+  onToggle: (self) => setSkillsTimelineState(self.isActive),
+  onRefresh: (self) => setSkillsTimelineState(self.isActive),
+});
+
+cleanups.push(() => {
+  document.body.classList.remove("skills-orbit-active");
+  skillsBodyClassTrigger.kill();
+});
+/* SKILLS_BODY_CLASS_TRIGGER_END */
+
+
+
   const context = gsap.context(() => {
     const sectionCard = section.querySelector(".section-card");
     const orbit = section.querySelector("[data-skills-orbit]");
@@ -363,6 +385,8 @@ export function initSkillsAnimation({ gsap, ScrollTrigger }) {
     context.revert();
   };
 }
+
+
 
 
 

@@ -40,20 +40,20 @@ export function initProjectsAnimation({ gsap, ScrollTrigger }) {
     if (width <= 760) {
       return {
         deck: [
-          { x: -82, y: -18, r: -14, s: 0.92, z: 1 },
-          { x: -74, y: -10, r: -11, s: 0.94, z: 2 },
-          { x: -66, y: -2, r: -8, s: 0.96, z: 3 },
-          { x: -58, y: 6, r: -5, s: 0.98, z: 4 },
-          { x: -50, y: 14, r: -2, s: 0.99, z: 5 },
-          { x: -42, y: 22, r: 1, s: 1, z: 6 },
+          { x: -86, y: -18, r: -14, s: 0.9, z: 1 },
+          { x: -76, y: -10, r: -11, s: 0.92, z: 2 },
+          { x: -66, y: -2, r: -8, s: 0.94, z: 3 },
+          { x: -56, y: 6, r: -5, s: 0.96, z: 4 },
+          { x: -46, y: 14, r: -2, s: 0.98, z: 5 },
+          { x: -36, y: 22, r: 1, s: 1, z: 6 },
         ],
         final: [
-          { x: -92, y: -180, r: -6, s: 0.92, z: 1 },
-          { x: 0, y: -180, r: -2, s: 0.94, z: 2 },
-          { x: 92, y: -180, r: 3, s: 0.92, z: 3 },
-          { x: -92, y: 20, r: -4, s: 0.92, z: 4 },
-          { x: 0, y: 20, r: 0, s: 0.94, z: 5 },
-          { x: 92, y: 20, r: 4, s: 0.92, z: 6 },
+          { x: -112, y: -210, r: -5, s: 0.9, z: 1 },
+          { x: 0, y: -210, r: -2, s: 0.92, z: 2 },
+          { x: 112, y: -210, r: 3, s: 0.9, z: 3 },
+          { x: -112, y: 18, r: -4, s: 0.9, z: 4 },
+          { x: 0, y: 18, r: 0, s: 0.92, z: 5 },
+          { x: 112, y: 18, r: 4, s: 0.9, z: 6 },
         ],
       };
     }
@@ -61,40 +61,40 @@ export function initProjectsAnimation({ gsap, ScrollTrigger }) {
     if (width <= 1050) {
       return {
         deck: [
-          { x: -280, y: 0, r: -14, s: 0.9, z: 1 },
-          { x: -266, y: 12, r: -11, s: 0.92, z: 2 },
-          { x: -252, y: 24, r: -8, s: 0.94, z: 3 },
-          { x: -238, y: 36, r: -5, s: 0.96, z: 4 },
-          { x: -224, y: 48, r: -2, s: 0.98, z: 5 },
-          { x: -210, y: 60, r: 1, s: 1, z: 6 },
+          { x: -330, y: 0, r: -14, s: 0.88, z: 1 },
+          { x: -312, y: 14, r: -11, s: 0.9, z: 2 },
+          { x: -294, y: 28, r: -8, s: 0.92, z: 3 },
+          { x: -276, y: 42, r: -5, s: 0.94, z: 4 },
+          { x: -258, y: 56, r: -2, s: 0.96, z: 5 },
+          { x: -240, y: 70, r: 1, s: 0.98, z: 6 },
         ],
         final: [
-          { x: -190, y: -150, r: -7, s: 0.9, z: 1 },
-          { x: 0, y: -150, r: -2, s: 0.94, z: 2 },
-          { x: 190, y: -150, r: 4, s: 0.9, z: 3 },
-          { x: -190, y: 70, r: -5, s: 0.9, z: 4 },
-          { x: 0, y: 70, r: 0, s: 0.94, z: 5 },
-          { x: 190, y: 70, r: 5, s: 0.9, z: 6 },
+          { x: -235, y: -185, r: -6, s: 0.86, z: 1 },
+          { x: 0, y: -185, r: -2, s: 0.9, z: 2 },
+          { x: 235, y: -185, r: 4, s: 0.86, z: 3 },
+          { x: -235, y: 88, r: -5, s: 0.86, z: 4 },
+          { x: 0, y: 88, r: 0, s: 0.9, z: 5 },
+          { x: 235, y: 88, r: 5, s: 0.86, z: 6 },
         ],
       };
     }
 
     return {
       deck: [
-        { x: -430, y: 10, r: -15, s: 0.88, z: 1 },
-        { x: -412, y: 24, r: -12, s: 0.9, z: 2 },
-        { x: -394, y: 38, r: -9, s: 0.92, z: 3 },
-        { x: -376, y: 52, r: -6, s: 0.94, z: 4 },
-        { x: -358, y: 66, r: -3, s: 0.97, z: 5 },
-        { x: -340, y: 80, r: 0, s: 1, z: 6 },
+        { x: -520, y: 6, r: -15, s: 0.84, z: 1 },
+        { x: -498, y: 22, r: -12, s: 0.86, z: 2 },
+        { x: -476, y: 38, r: -9, s: 0.88, z: 3 },
+        { x: -454, y: 54, r: -6, s: 0.9, z: 4 },
+        { x: -432, y: 70, r: -3, s: 0.93, z: 5 },
+        { x: -410, y: 86, r: 0, s: 0.96, z: 6 },
       ],
       final: [
-        { x: -280, y: -165, r: -7, s: 0.88, z: 1 },
-        { x: 0, y: -165, r: -2, s: 0.94, z: 2 },
-        { x: 280, y: -165, r: 5, s: 0.88, z: 3 },
-        { x: -280, y: 95, r: -5, s: 0.88, z: 4 },
-        { x: 0, y: 95, r: 0, s: 0.94, z: 5 },
-        { x: 280, y: 95, r: 5, s: 0.88, z: 6 },
+        { x: -360, y: -190, r: -6, s: 0.92, z: 1 },
+        { x: 0, y: -190, r: -2, s: 0.96, z: 2 },
+        { x: 360, y: -190, r: 5, s: 0.92, z: 3 },
+        { x: -360, y: 118, r: -5, s: 0.92, z: 4 },
+        { x: 0, y: 118, r: 0, s: 0.96, z: 5 },
+        { x: 360, y: 118, r: 5, s: 0.92, z: 6 },
       ],
     };
   };
@@ -157,7 +157,7 @@ export function initProjectsAnimation({ gsap, ScrollTrigger }) {
       overwrite: "auto",
     },
     scrollTrigger: {
-      id: "projectsExitLastScrollV16",
+      id: "projectsExpandableCardsV1",
       trigger: section,
       start: "top top",
       end: "bottom bottom",
@@ -174,7 +174,7 @@ export function initProjectsAnimation({ gsap, ScrollTrigger }) {
     },
   });
 
-  tl.to({}, { duration: 0.25 });
+  tl.to({}, { duration: 0.22 });
 
   tl.to(
     cards,
@@ -184,25 +184,25 @@ export function initProjectsAnimation({ gsap, ScrollTrigger }) {
       rotation: (index, target) => Number(target.dataset.finalR || 0),
       scale: (index, target) => Number(target.dataset.finalS || 1),
       zIndex: (index, target) => Number(target.dataset.finalZ || index + 1),
-      duration: 2.05,
+      duration: 2.12,
       stagger: {
-        each: 0.14,
+        each: 0.13,
         from: "start",
       },
       ease: "power3.out",
     },
-    0.25
+    0.22
   );
 
   tl.to(
     cards,
     {
-      y: (index, target) => Number(target.dataset.finalY || 0) - (index < 3 ? 5 : 7),
+      y: (index, target) => Number(target.dataset.finalY || 0) - (index < 3 ? 6 : 8),
       duration: 0.2,
       stagger: 0.015,
       ease: "sine.inOut",
     },
-    2.45
+    2.5
   );
 
   tl.to(
@@ -213,11 +213,10 @@ export function initProjectsAnimation({ gsap, ScrollTrigger }) {
       stagger: 0.015,
       ease: "sine.inOut",
     },
-    2.7
+    2.76
   );
-  // Mantener Proyectos visible hasta el final real de la sección.
-  // No hacemos fade a 0 aquí porque generaba un espacio vacío antes de terminar.
-  tl.to({}, { duration: 4.8 }, 3.05);
+
+  tl.to({}, { duration: 4.8 }, 3.08);
 
   tl.set(
     [stage, intro],
@@ -225,9 +224,8 @@ export function initProjectsAnimation({ gsap, ScrollTrigger }) {
       autoAlpha: 1,
       pointerEvents: "auto",
     },
-    7.85
+    7.88
   );
-
 
   const handleResize = () => {
     applyBase();
@@ -246,5 +244,3 @@ export function initProjectsAnimation({ gsap, ScrollTrigger }) {
     tl.kill();
   };
 }
-
-
